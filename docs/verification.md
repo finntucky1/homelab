@@ -1,8 +1,52 @@
 # Verification record
 
-Latest local recheck: **2026-09-29**. Initial integration: 2026-09-23.
+Latest Pi continuation: **2026-09-29 America/Los_Angeles**. Initial integration:
+2026-09-23. Historical checks below are retained as dated provenance.
 
-## September 29 Linux verification
+## Actual Pi continuation and isolated testing
+
+The session's device model, kernel, architecture, storage and OS identify the
+actual Pi. Python 3.13.5 on ARM64 executed these checks. Bounded read-only
+hardware/config/log inspection is documented in [inventory](inventory.md) and
+[findings](review-findings.md). No live service/package/network/permission or
+scheduler changes were applied; no remote GitHub content was updated.
+
+| Command / check | Result | Evidence scope |
+| --- | --- | --- |
+| Baseline unittest discovery before changes | 28 passed, zero skips | Existing mocked/generated-data implementation on the Pi |
+| Final unittest discovery | 86 passed, zero skips, exit 0 | 48 health, 17 config/export, 14 unchanged SQLite lab, 7 private reporting tests; isolated/mocked data |
+| backup_lab.py --json | PASS, exit 0 | Generated SQLite online backup, two restored rows, hashes/integrity, corruption refusal, sample retention and cleanup |
+| backup_config.py create/verify/restore CLI | PASS, byte match, marker 0600 | Generated static JSON fixture; damaged snapshot then refused before writes; temporary fixture removed |
+| healthcheck.py --mount /mnt/storage --json | Exit 1 | Actual capacity/mount/memory/load/temperature passed; Docker/systemd/PSI/throttling and unconfigured backup/probes UNKNOWN |
+| report_snapshot.py one-shot | Saved private JSON/text, exit 1 | Actual local selected checks; 0600 files. Selected filesystem-only repeated run deduplicated; exit 0 covers only that scope |
+| Native Radarr archive isolated extraction | Three restored files matched; CRC PASS; SQLite integrity ok, 42 tables | Existing application-produced ZIP; app startup/integrations not tested; private temporary restore removed |
+| Original and sanitized Compose config --quiet | Exit 0 | Four-service source syntax; source/runtime provenance still unknown |
+| systemd calendar parser | Exit 0, America/Los_Angeles accepted | Proposed daily timer expression only |
+| systemd-analyze --user verify templates | Access denied, exit 1 | Unit validation remains unverified in this restricted session; no schedule installed/enabled |
+| Python 3.8 grammar parsing | Accepted | Syntax only; no Python 3.8 runtime exercised |
+| Help, local Markdown targets, whitespace, diff/privacy review | Passed | CLI/documentation consistency and scoped source review; heuristic secret scan is not a universal guarantee |
+
+Independent review reproduced FIFO hanging and deeply nested JSON failure in
+early changes; both were corrected with regression tests before delivery.
+Private configuration/marker leaves require current ownership, mode 0600 and
+non-symlink regular files. Bounded nonblocking reads refuse FIFOs. Shared-writable
+recovery evidence cannot pass. Default application probes make no requests;
+explicit HTTP worker tests use mocked responses, proxies/redirects disabled and
+an overall deadline, so no live app reachability is claimed.
+
+Source provenance: GitHub connector reads retrieved the existing PR head
+8d11e96b4b9d9b84cec2dd90290451cae0c9cc51 and main parent exactly. Blob/tree/commit
+object IDs matched during local reconstruction. Work uses the separate local
+branch codex/pi-baseline-2026-09-29. No user checkout/uncommitted work was replaced.
+The draft PR remains at its prior head until an approved remote update.
+
+Recovery-marker freshness is snapshot packaging age, not authenticated native
+export age. Native Radarr archive and live state share a disk. No complete
+application restore, offsite recovery, alert delivery, learner reproduction,
+RPO/RTO or uptime measurement is claimed. See [restore record](../backups/restore-test.md)
+and [prepared approval package](prepared-changes.md).
+
+## Historical September 29 pre-Pi Linux verification
 
 Downloaded the reviewed source archive and matched SHA-256
 `d63a64c2929578941577f0dae607553eb16a08a5dcfe6ceba3bf1a60954d698e`.

@@ -1,58 +1,68 @@
-# Portfolio evidence: operations groundwork
+# Portfolio evidence and honest interview explanations
 
-## Problem
+This is agent-assisted engineering work on September 29, 2026. The owner defined
+the goals and boundaries; the agent performed these inspections, implementations
+and tests. Reproduce and explain each exercise before claiming personal
+implementation/troubleshooting proficiency. No invented uptime, speedup,
+incident resolution or production deployment is claimed.
 
-The GitHub repository began with only a title. A prepared starter package
-described a reported Raspberry Pi homelab, but there was no verified deployment
-inventory, live Compose source, or demonstrated application recovery.
+## Project 1: evidence-based Pi diagnostics
 
-## Design and implementation
+Problem: reported hardware/services were being treated as a baseline without
+live evidence. Work: inspect the actual Pi read-only, preserve source/runtime
+distinctions, review logs privately and record constraints. Design: expose
+UNKNOWN for denied access, separate container state from HTTP response evidence,
+use configurable disk/resource/thermal/backup checks with actionable output.
+Troubleshooting: identify distinct download directories and actual Radarr
+queue/history warnings; avoid claiming an unproven root cause.
+Result: dated inventory and tested checker; live Docker/network remediation
+remains open. Evidence: [inventory](inventory.md), [findings](review-findings.md),
+[tests](verification.md).
 
-- Integrated the starter documentation and dependency-free read-only check on
-  a separate branch, preserving the repository's base history.
-- Added project conventions, evidence collection, operating and review notes,
-  a prioritized backlog, and exercises that make uncertainty explicit.
-- Improved container checks to distinguish observed running processes from
-  application health and detect explicitly expected containers that disappear.
-- Implemented a disposable backup/restore lab to demonstrate consistency,
-  integrity verification, retention boundaries, and failure handling before
-  choosing a production destination or modifying any live service.
+Interview draft: “I directed an assisted audit, then reproduced its checks.
+The key decision was distinguishing missing evidence from an outage. I can show
+how simulated unhealthy, missing-container and denied-tool cases affect the
+report. The audit found a path inconsistency; confirming runtime connectivity
+is the next diagnostic step.” Use “I reproduced” only after you do it.
 
-## Verification and limitations
+## Project 2: recovery with explicit proof boundaries
 
-See `docs/verification.md` for the exact local evidence and
-`backups/restore-test.md` for the sample restore record. The original seven
-tests were rerun before changes; the expanded suite exercises failure behavior.
+Problem: backup existence does not establish recovery or protect against device
+loss. Work: preserve the synthetic SQLite online-backup lab, add restricted
+static-file/export snapshot tooling, and restore an existing native Radarr ZIP
+to an isolated private temporary directory.
+Design: explicit inputs, stable bounded reads, SHA-256 manifests, no overwrites,
+keep-all development retention, private modes and success markers after restore.
+Troubleshooting: tests reject corruption, traversal, symlinks and overlap.
+Result: actual Radarr archive CRC/restored bytes/SQLite integrity passed;
+application startup and independent disaster recovery were not demonstrated.
+Evidence: [restore record](../backups/restore-test.md) and [verification](verification.md).
 
-No live Pi access was used. No service deployment, production backup, restored
-Jellyfin/Portainer instance, firewall audit, or sustained monitoring was verified.
-No uptime, RPO, RTO, or reliability improvement is claimed. The sample restore
-does not establish disaster recovery capability for the reported homelab.
+Interview draft: “I learned to separate byte integrity, database integrity and
+application recovery. The assisted rehearsal recovered an existing Radarr
+archive without touching live data. I reproduced failure tests and can explain
+why a same-disk backup and a running-database copy are inadequate.” Again,
+claim reproduction only when supported by your own retained result.
 
-## Interview talking points
+## Project 3: private repeatable reporting
 
-- "I separated reported infrastructure from observed evidence so the runbooks
-  did not imply a deployment audit had happened."
-- "I reproduced a false-green case: a deleted container disappears from
-  `docker ps`. An explicit expected-container check makes that absence visible."
-- "I distinguished a running process from application health, and tested
-  failures without disrupting the server."
-- "I exercised a consistent synthetic database backup and an isolated restore,
-  including damaged-backup refusal. Live application recovery remains a
-  separate acceptance test."
-- "The integration returned 403 on authorized writes despite account push
-  permission. I documented the access boundary and prepared portable delivery
-  rather than treating the repository permissions field as proof of access."
+Problem: repeated manual health commands and report collection are error-prone.
+Work: the actual inspection repeated capacity, health and evidence collection;
+a small wrapper now creates private readable/JSON daily report bundles.
+Design: explicit output directory, 0700 directories/0600 files, exact semantic
+deduplication within each UTC day, no secret HTTP endpoints in report output,
+nonzero health status preserved and no automatic scheduler/notification.
+Troubleshooting: corruption/incomplete bundles and unsafe paths are refused.
+Result: fixture tests and local one-shot collection; no unattended operation
+or time-saving metric claimed. Evidence: [private reporting](private-reporting.md).
 
-September 29 update: authenticated branch creation succeeded after access was
-updated. The reviewed package passed all 28 tests on Linux with no skips.
-These are agent-executed verification results; the learner should reproduce
-and explain the relevant exercises before presenting them as personal work.
+Interview draft: “I used a tested wrapper to make repeated manual collection
+consistent. It keeps evidence private and preserves unknown/failure exit codes,
+so automation cannot quietly turn missing access into a green report. A scheduler
+still needs de-duplication and access review before enabling it.”
 
-## Lessons and next evidence
+## Completion evidence
 
-Recovery begins with dependency and storage knowledge; automation cannot fill
-in unknown paths or application consistency requirements. The next evidence is
-a sanitized live inventory and stack sources, followed by an agreed independent
-backup destination and an approved isolated application restore. Add measured
-results only after those tests occur.
+An artifact/test result supports agent-executed work. Learner completion requires
+your own explanation and reproduction, recorded privately. Use
+[the four-week sequence](learning-exercises.md) to build that evidence.

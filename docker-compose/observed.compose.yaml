@@ -1,0 +1,51 @@
+# Sanitized declaration observed 2026-09-29. Runtime provenance remains unverified.
+# Review copy: do not deploy a second stack from this file.
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+    - 9000:9000
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/docker/portainer:/data
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    ports:
+    - 8096:8096
+    volumes:
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/media:/media
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/docker/jellyfin:/config
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    ports:
+    - 8080:8080
+    - 6881:6881
+    - 6881:6881/udp
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=America/Los_Angeles
+    - WEBUI_PORT=8080
+    volumes:
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/downloads:/downloads
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/docker/qbit:/config
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=America/Los_Angeles
+    volumes:
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/docker/radarr:/config
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/media:/media
+    - ${STORAGE_ROOT:?set STORAGE_ROOT}/torrents:/downloads
+    ports:
+    - 7878:7878
+    restart: unless-stopped

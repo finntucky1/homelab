@@ -1,25 +1,51 @@
-# Networking
+# Networking and architecture
 
-## Reported components
+Observed Pi/storage and Compose declarations are shown below. Dashed paths are
+owner-reported or require runtime confirmation. No real addresses are published.
 
-| Component | Intended role | Verification needed |
+```mermaid
+flowchart LR
+  Client[LAN client] -. policy and reachability unverified .-> Gateway[Reported UniFi gateway and switch]
+  VPN[Reported WireGuard] -. hosting and routes unverified .-> Gateway
+  Gateway -. uplink unverified .-> Pi[Observed Raspberry Pi 5 ARM64 Debian 13]
+  Pi --> NVMe[Observed NVMe root]
+  Pi --> SSD[Observed external ext4 SSD]
+  Pi -. declared ports .-> Apps[Portainer Jellyfin qBittorrent Radarr]
+  Apps -. declared persistent binds .-> SSD
+```
+
+The candidate source publishes 9000, 8096, 8080, 7878 and 6881 TCP/UDP without
+host-IP constraints. Runtime listeners, Docker networks, DNS, gateway forwards,
+IPv6 policy, VLANs and VPN access are unknown. Empty socket/route tables and DNS
+errors inside this restricted session cannot establish a host network failure.
+
+## Diagnose the concrete Radarr integration symptom
+
+Recent bounded Radarr log tails report queue/history retrieval warnings.
+Start with the configured client Test in Radarr, privately. Then distinguish:
+
+| Layer | Read-only evidence | What a failure suggests |
 | --- | --- | --- |
-| UniFi Cloud Gateway Max | Routing and gateway policy | Actual routing, DNS and DHCP configuration |
-| USW-Pro-XG-8-PoE | Switching and PoE | Pi uplink, power and VLAN membership |
-| Raspberry Pi 5 | Application host | Address reservation and service access |
-| WireGuard | Remote access | Hosting device, routes and access scope |
+| Container/process | Selective ps, health and restart count | Process or runtime problem; running is not readiness |
+| DNS | Resolve configured client from Radarr; inspect exit only | Wrong hostname/network or unavailable resolver |
+| TCP/HTTP | Credential-free bounded HTTP status from Radarr | Connection failure or app listener; 401/403 establishes a response |
+| Authentication | Existing application client Test | Incorrect credentials/access policy; do not paste them into commands |
+| Path translation | Current completed path and mapped host directory | Both /downloads names currently point to different directories |
+| Permissions/storage | Numeric owners, ACLs, mount and capacity | A demonstrated reader/writer mismatch or missing storage |
 
-Actual links and VLANs have not been inspected. Add a topology diagram after
-verification, using generic labels instead of private endpoint details.
+[Prepared commands and conditional correction](../docs/prepared-changes.md)
+preserve the original source and rollback. Do not infer that a mount mismatch
+causes the queue/history connectivity warning: these can be separate problems.
 
-## Documentation to capture
+The backed-up Radarr client host is not the Compose service DNS name and its
+remote prefix does not cover qBittorrent's current default /downloads.
+Those settings may be stale; inspect live configuration before changing them.
 
-- Which device provides DNS and DHCP, and how the Pi keeps a stable address.
-- Which services should be reachable locally and through WireGuard.
-- Whether guest or IoT networks should be isolated from management services.
-- Firewall intent and the tests used to confirm access boundaries.
-- A recovery path if remote access fails.
+## Access policy worksheet
 
-Never commit WireGuard private keys or exported network-controller backups.
-Keep the live address plan in a private record; this folder should explain the
-design and troubleshooting approach.
+Keep private endpoint details outside Git. For each service record intended
+LAN, trusted VPN and prohibited-network access, authentication, protocol and
+read-only test. Use a normal authorized LAN client before diagnosing remote
+access. Router/switch/WireGuard administration needs separately authorized
+access; none was established in this session. No firewall/VPN changes are
+prepared from assumptions.

@@ -1,8 +1,8 @@
 # Working in this repository
 
 This is a public Raspberry Pi homelab operations and learning repository. The
-hardware and services in `docs/inventory.md` are owner-reported until supported
-by dated host evidence. GitHub access never implies access to the Pi.
+hardware and services in `docs/inventory.md` distinguish dated observations,
+owner reports and unknowns. GitHub access never implies access to the Pi.
 
 ## Conventions
 

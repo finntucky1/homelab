@@ -1,55 +1,100 @@
 # Monitoring
 
-The initial tool is [healthcheck.py](../scripts/healthcheck.py). Run it on demand
-to inspect storage capacity and container state. It is not yet scheduled and
-does not send alerts.
+[healthcheck.py](../scripts/healthcheck.py) provides read-only host observations
+and configured application response probes. The code is prepared locally;
+that does not establish Pi deployment, continuous monitoring, uptime or alert
+delivery. [Script usage](../scripts/README.md) describes the private JSON config,
+thresholds, actions and explicit coverage exclusions.
 
-| Signal | Current coverage | Next step |
+| Signal | Implemented observation | Limitation/action |
 | --- | --- | --- |
-| Root filesystem capacity | Checked by the script | Establish a suitable free-space threshold |
-| External disk mount and capacity | Optional `--mount` check | Confirm the actual mount point |
-| Container state and reported health | Docker status query; absent health is WARN | Verify each probe's coverage |
-| Missing expected containers | Repeatable `--expect-container` exact-name checks | Confirm required names on the Pi |
-| Application availability | Manual verification | Add application-specific probes |
-| Temperature, power and disk health | Not implemented | Select host metrics appropriate to the Pi |
-| Backup success and recovery | Separate from the healthcheck | Track [backup completion and restore evidence](../backups/README.md) |
+| Capacity and mounts | Root plus explicit paths/required mount points | Verify disk identity and intended layout separately |
+| Container state/health | Docker inventory; optional exact required names | Docker access denial is UNKNOWN; no health result is UNKNOWN |
+| Failed units | System or user bus `systemctl --failed` | Inaccessible bus is UNKNOWN, not an observed service failure |
+| Available memory | Linux `MemAvailable/MemTotal` | Configure workload thresholds; no process inspection or repairs |
+| Resource contention | Five-minute load/CPU; memory PSI `some avg10` | I/O wait contributes to load; unsupported PSI is UNKNOWN |
+| Temperature | Explicit/default sysfs file, thresholds | Confirm the CPU thermal zone; inaccessible data is UNKNOWN |
+| Pi power/throttling | `vcgencmd get_throttled` current/history flags | Current flags fail, historical flags warn; unavailable utility is UNKNOWN |
+| Application response | Explicit bounded credential-free HTTP GET/status probes | No default requests; response from this host does not establish login/data/client access |
+| Backup evidence | Configured schema-validated recovery marker and snapshot packaging age | Static config/export byte evidence only; source-data age, authenticity and application recovery are separate |
 
-Prometheus and Grafana are candidate improvements, not confirmed deployments.
-Choose what needs action before building dashboards; define the threshold,
-recipient, and response for every alert.
+Power/throttling bit interpretation follows [Raspberry Pi's firmware command
+reference](https://www.raspberrypi.com/documentation/computers/os.html#get_throttled).
+Threshold defaults are proposals to review after observation, not measured Pi
+limits or proof that the cooling/power path is adequate. Prometheus/Grafana and
+external alerting remain proposals rather than claimed deployments.
 
-## Running and interpreting a check
+## Interpreting and collecting reports
 
-Use confirmed values, for example:
+Exit `0` means selected checks passed. Exit `1` means `WARN` or `UNKNOWN` needs
+review. Exit `2` means an observed critical `FAIL` or invalid arguments. A
+successful Docker inventory with a missing required name fails; an inaccessible
+Docker query cannot prove that name is absent. A running container without a
+health result or configured HTTP probe does not establish availability.
+No backup marker or HTTP probe is configured by default: those coverage gaps
+are explicit `UNKNOWN` observations. A skipped category is excluded from the
+report, so a green selected report does not cover it.
+
+Run manually before scheduling, using confirmed mount points, exact container
+names, application-supported health endpoints, selected backup evidence and
+appropriate thresholds. Review every action. Use [the recovery guide](../backups/README.md)
+to understand what a marker proves. Recent packaging does not establish recent
+native export data, and byte recovery does not establish application recovery.
+
+[report_snapshot.py](../scripts/report_snapshot.py) collects timestamped JSON
+and readable reports in an explicitly selected private directory. It preserves
+the health exit status and avoids duplicate equivalent bundles within the UTC
+day. Reports/config belong outside public Git. Names and filesystem paths still
+need redaction before public sharing. No notification destination is configured;
+a saved report by itself does not deliver an alert.
+
+## Proposed user systemd schedule
+
+Templates are prepared in [homelab-report.service](systemd/homelab-report.service)
+and [homelab-report.timer](systemd/homelab-report.timer). **They have not been
+installed, enabled or run.** The proposed daily time is 08:00 in
+America/Los_Angeles with up to five minutes of randomized delay; this is a
+reviewable proposal, not an existing Pi schedule. `Persistent=true` can run a
+missed collection after the user manager resumes. A user timer needs the user
+manager to remain available; enabling login lingering would be a separate live
+change requiring approval.
+
+The unit's repository path is deliberately `/ABSOLUTE/PATH/TO/homelab`; replace
+it with the confirmed checkout and verify `/usr/bin/python3` before installation.
+The service expects a reviewed private config at
+`~/.config/homelab/healthcheck.json` and an existing owner-only `0700` directory
+at `~/.local/state/homelab/reports`. It applies `UMask=0077` and a five-minute
+collection deadline. Review failures remain nonzero unit results: exit `1`
+means incomplete/warning coverage and `2` means critical observations. Neither
+causes a repair or restart. A collection/storage error uses exit `3`.
+
+The existing scheduler is **unverified**: the system bus was denied during the
+host evidence inspection. Do not assume no jobs exist. With existing access,
+inspect schedules before proposing installation so a new collector cannot
+silently duplicate existing work:
 
 ```sh
-python3 scripts/healthcheck.py --mount /actual/mountpoint \
-  --expect-container actual-container-name --json
+systemctl --user list-timers --all --no-pager
+systemctl list-timers --all --no-pager
+crontab -l
 ```
 
-The exit status is `0` for all selected checks passing, `1` for review warnings,
-and `2` for failed checks or invalid arguments. A missing expected container or a
-required container that is not running fails. With no expected names, a deleted
-container is invisible; an empty Docker inventory only warns. Every discovered
-container is checked, so an unrelated intentionally stopped container can cause
-a warning. A running container with no reported health probe also warns.
+Review sanitized output only; permission errors remain unknown. Also inspect
+known application/export schedulers and root-owned jobs through already
+approved administrative access where applicable. Do not escalate permissions
+or enable a job merely to complete discovery. Confirm schedule ownership,
+report destination, marker selection and notification requirements; then obtain
+approval for copying units and activating the timer. No installation/enable
+command is run by these templates or this documentation change.
 
-Before adding a schedule, run manually on the Pi, confirm Docker targets that
-Pi, choose the required container names and mount points, then review each
-warning. A green report does not prove that clients can use the applications,
-that mounts contain the intended disks, or that backups can be restored.
-The current implementation does not restart services, send notifications, or
-perform repairs. For future scheduling, preserve the exit code and record the
-timestamp plus JSON report privately; any alert integration should test failure
-delivery and treat both stale/missing runs and failed checks as actionable.
+Before activation, validate the adapted unit/time syntax with the Pi's existing
+systemd tools, run the exact service command manually, and check report access,
+exit codes and duplicate behavior. Verify a simulated unknown/failure is
+retained and visible to the intended reviewer. Any eventual alert integration
+must test delivery and detect missing/stale runs as well as failed observations.
+To roll back an approved deployment, disable its timer before removing its
+units; preserve private reports and config until their retention is agreed.
+This remains an approval-gated runbook, not an assertion of activation.
 
-To troubleshoot a missing expected container, compare its exact name with
-`docker ps --all --format '{{.Names}}'`. Confirm whether Compose changed the
-name or the service is actually missing before updating expectations. To
-troubleshoot an absent health probe, review the service's actual Compose
-definition and its supported health endpoint; do not invent a probe that only
-tests for a process. Keep healthcheck output private until container names and
-host paths are reviewed for sensitive information.
-
-Local automated tests exercise simulated failures and output contracts. They
-are not measurements of this Pi, alert delivery, uptime, or recovery.
+Automated tests use simulated host/service/HTTP observations. They do not
+measure the live Pi, external alert delivery, uptime or production recovery.

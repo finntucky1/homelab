@@ -1,6 +1,18 @@
 # Access and portable delivery
 
-## Current access — September 29, 2026
+## Current local continuation — September 29, 2026
+
+Existing draft PR #1 was read and attached to this chat. Its head is
+8d11e96b4b9d9b84cec2dd90290451cae0c9cc51. No usable local homelab checkout was
+found in the bounded search. Files, blobs, trees and both existing Git commits
+were retrieved through the authorized GitHub connector; exact object IDs were
+verified while reconstructing the local checkout. Work uses separate local
+branch codex/pi-baseline-2026-09-29, preserving the existing history.
+No earlier user working tree was overwritten. Remote branch/PR updates remain
+pending under the current request's remote-change approval requirement.
+No Drive/Gmail/Calendar data or synchronization was used in this continuation.
+
+## Earlier access — September 29, 2026
 
 Authenticated creation of `codex/homelab-operations-2026-09-23` from main
 `6d78c043caba808e78c5790a24f171432fa2745c` succeeded. Before creation, a full

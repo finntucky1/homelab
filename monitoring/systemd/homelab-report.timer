@@ -1,0 +1,12 @@
+# Proposed daily time in the owner's timezone; review/change before activation.
+[Unit]
+Description=Collect the proposed daily homelab health report
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=5min
+Unit=homelab-report.service
+
+[Install]
+WantedBy=timers.target

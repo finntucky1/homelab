@@ -1,56 +1,47 @@
-# Repository and live-system review
+# Evidence-based findings — September 29, 2026
 
-Reviewed on 2026-09-23. This review covers the repository and the supplied
-starter material. No Pi shell, live Compose definitions, container inspection,
-storage-permission output or gateway rules were available. Hardware and service
-names remain owner-reported. GitHub access is not access to the Pi.
+The Pi and candidate live Compose source were inspected read-only. No service,
+package, permissions, network, mount or scheduler was changed. Credentials and
+raw logs remain private. See [inventory](inventory.md) and
+[prepared changes](prepared-changes.md).
 
-The rows below record evidence gaps, not discovered live-system defects.
-Import only sanitized material using [the collection guide](pi-evidence.md).
-
-| Priority / area | Evidence available | What remains unverified | Acceptance evidence |
+| Priority / symptom or risk | Evidence | Likely cause / uncertainty | Correction and verification |
 | --- | --- | --- | --- |
-| P0 / Compose and service inventory | `docker-compose/README.md` defines an import process; no live stack YAML is present. `docs/inventory.md` labels services as reported. | Actual services, image versions/digests, overrides, profiles, dependencies, restart policy, privileges and deployment owner. | Sanitized source and all overrides with load order; selective runtime inspection; same-file-order validation; differences between source and runtime explained. |
-| P0 / Storage and mappings | Documentation identifies reported NVMe boot storage and an external SSD. | Actual source paths, bind mounts versus named volumes, capacity, filesystem boundaries, required mounts at startup and shared media/download paths. | Device/mount/capacity output mapped to each persistent service path; reviewed mount persistence and startup dependencies; absent-storage behavior assessed before deployment changes. |
-| P0 / Recovery destination and consistency | The repository describes recovery requirements and provides local rehearsal material; see `backups/README.md` and its restore record. | An agreed independent destination, live source set, application export/backup capability, ownership, retention and observed recovery of any reported service. | Agreed source/destination/retention; consistency procedure for each writer; approved isolated application restore with data checks and measured time; failure notification demonstrated. |
-| P1 / Permissions | No numeric ownership, ACL or effective application-user evidence has been supplied. | Whether configuration, downloads and media are accessible to the intended services with appropriate rights. | Bind-path mode/UID/GID and parent traversal checks, configured and effective application identity, ACL/user-namespace review where relevant. Fix only a demonstrated mismatch. |
-| P1 / Network exposure | Network components and WireGuard are reported in `networking/README.md`. | Listening/bound addresses, network modes, firewall/forwarding rules, IPv6 reachability, UPnP and intended LAN/VPN access. | Service access matrix reconciled with bind addresses and gateway rules; authorized reachability tests from intended and prohibited network roles. No public exposure is authorized by this review. |
-| P1 / Health and monitoring | `scripts/healthcheck.py` reads capacity and Docker state; unit tests exercise simulated inputs. | Real container health checks, application readiness, endpoint access, alert delivery and host telemetry. | Sanitized health definitions reviewed without credentials; observed application checks plus documented warning/failure delivery. Local tests cannot establish live health or uptime. |
-| P1 / Logging | A selective inspection command is provided; no live log-driver configuration has been supplied. | Actual per-container drivers, rotation limits, log growth, retention and notification requirements. | Per-container driver/rotation evidence, relevant daemon defaults and a suitable retention decision. Check application-managed logs separately. |
+| P1 / Radarr queue/history retrieval warnings | Repeated DownloadMonitoringService warnings in bounded recent log tails | Client connectivity/authentication/configuration issue; cause unconfirmed | Test configured client privately; distinguish DNS, TCP, HTTP and authentication; verify queue/history after a targeted correction |
+| P1 / download-path inconsistency | qBittorrent maps downloads to /downloads; Radarr maps distinct torrents to /downloads; samefile is false. qBittorrent saves under /downloads | Potential import/translation failure, separate from retrieval. Native backup remote-path prefix does not cover this default; backup settings can be stale | Confirm live completed paths and current mappings; candidate one-line Radarr bind edit prepared; verify both containers see the same authorized file and an import succeeds |
+| P1 / readable secrets/configuration | Radarr config.xml contains API key and is 0644; native ZIP is unencrypted and 0644; qBittorrent configuration is 0644 | Local readers with parent traversal may access private state; effective application IDs unknown | Restrict individual reviewed files after access validation; preserve original modes for rollback; no recursive chmod |
+| P1 / broad management port declaration | Host IP omitted on published ports; Portainer 9000 plus read/write Docker socket | Broad bind defaults; runtime and Internet exposure unknown | Confirm LAN/VPN access policy and bindings before a specific TLS/port patch; verify intended and prohibited access |
+| P2 / world-writable directory | Radarr torrents directory is 0777 | Excess write access; required writers/ACLs unknown | Identify effective IDs and writers before a narrow mode/ACL proposal |
+| P2 / moving image versions | All four declarations use latest | Re-creation can select another release; current digests/versions unknown | Record current digest/schema; review release and ARM64 manifest; pin only after isolated recovery |
+| P2 / same-device backups | Native Radarr ZIP and live state share external SSD | Device loss destroys both | Select independent protected destination and prove application recovery before scheduling |
+| Observation gap | Docker, systemd and vcgencmd access denied | Restricted session, not an established outage | Health report uses UNKNOWN; collect selective runtime evidence in an authorized owner shell |
 
-## How evidence will change recommendations
+Root was 3% used; external storage 30% used. No capacity incident was observed.
+One 57.3°C sensor reading cannot establish long-term thermal health.
+Torznab errors were also found in bounded tails; no indexer change is proposed
+without checking the specific error privately.
 
-Check the full stack's path relationships before suggesting new mappings:
-renaming a container path can break a dependent service even when the underlying
-files remain present. Ownership fields alone are insufficient for a permission
-fix; the application may run as a different identity than the configured
-container entrypoint. Avoid blanket recursive ownership changes.
+## Security and maintenance context
 
-Review published addresses together with network mode, Docker version and the
-gateway policy. Docker publishes ports on host interfaces according to their
-binding; actual Internet reachability requires further routing and firewall
-evidence. A loopback binding also needs version-aware review. These distinctions
-come from [Docker's port-publishing documentation](https://docs.docker.com/engine/network/port-publishing/);
-no particular exposure has been observed here.
+Unspecified Docker port bindings default to all host addresses; gateway and
+firewall evidence is still needed to determine Internet access. Docker before
+28 has a documented adjacent-host caveat for loopback publishing; the observed
+26.1.5 version is the client, and server version remains unknown. Review
+[official port behavior](https://docs.docker.com/engine/network/port-publishing/)
+before choosing a binding as an access control.
 
-For logging, inspect each existing container rather than assuming the current
-daemon default applies to it. Docker documents that changed daemon defaults
-apply to newly created containers, and `json-file` does not rotate by default.
-This is a review criterion, not a claim about this Pi. See
-[Docker logging configuration](https://docs.docker.com/engine/logging/configure/).
+[Docker security guidance](https://docs.docker.com/engine/security/) explains
+why daemon control is trusted. A read-only socket mount does not provide API
+authorization; changing Portainer socket access requires management review.
 
-Choose an application-consistent method only after the actual application
-version and data locations are known. A successful snapshot and restore rehearsal
-with disposable files proves the tested sample workflow; it cannot prove that a
-live application database can be recovered, that VPN access can be restored,
-or that a whole host can be rebuilt. Track each separately in
-[the restore record](../backups/restore-test.md).
+The Pi is ARM64. LinuxServer documents ARM64 support for
+[Radarr](https://docs.linuxserver.io/images/docker-radarr/) and
+[qBittorrent](https://docs.linuxserver.io/images/docker-qbittorrent/).
+No exact installed/candidate manifest was inspected. Check each exact candidate
+manifest, including Portainer/Jellyfin, before proposing an image change.
 
-## Decision boundary
-
-Repository improvements and safe local tests may proceed now. Live service
-changes, installations on the Pi, reboots, deletions and public exposure need
-explicit approval with a concrete change and rollback plan. No such changes
-were performed during this review. The next input is sanitized Pi evidence and
-an agreed backup destination; service-specific configuration fixes remain
-blocked until that evidence supports them.
+Before updates: record current image digest, release/migration requirements,
+application-consistent backup and tested rollback data. Test one service at a
+time. A schema migration can require restoring compatible data as well as the
+previous image. Never prune volumes or automatically downgrade a migrated
+database. Per-container log rotation remains a runtime review item.

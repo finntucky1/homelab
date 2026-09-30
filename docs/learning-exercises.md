@@ -1,74 +1,29 @@
-# Learn by operating and explaining
+# Four weeks of practical study
 
-Use a local checkout and disposable data. Do not create failures on the Pi.
-Each exercise ends with evidence you can explain, not just a green command.
+Proposed first complete study block: **October 5–30, 2026**, weekdays
+**4–5 PM America/Los_Angeles**. No calendar event or scheduled job was created.
+Each session: 10 minutes understand, 35 minutes exercise, 15 minutes record and
+explain. Existing agent-created artifacts shorten setup; they do not mark the
+learner complete. Leave completion open until an artifact/test supports it.
 
-## 1. Read the evidence boundary
+| Week | Monday | Tuesday | Wednesday | Thursday | Friday |
+| --- | --- | --- | --- | --- | --- |
+| 1: Oct 5–9, Linux/inventory | Reproduce OS/architecture/memory checks | Trace lsblk, df, mount and fstab roles without edits | Inspect numeric permissions and explain PUID vs effective process ID | Compare --path with --mount on a temporary directory; simulate missing storage | Write inventory addendum and explain one uncertainty |
+| 2: Oct 12–16, networking/containers | Trace one declared port and LAN/VPN policy | After authorized access, reconcile runtime source/images/networks | Distinguish DNS, TCP, HTTP and authentication using bounded checks | Reproduce simulated HTTP/denied-tool failure; analyze Radarr path mappings | Write incident worksheet with hypotheses and disconfirming evidence |
+| 3: Oct 19–23, backup/recovery | Map config, secrets, DB and media recovery needs | Re-run synthetic SQLite lab; explain online-backup API | Back up generated static config with backup_config.py | Corrupt only a generated snapshot; prove restore refusal and no overwrite | Document real Radarr proof boundaries and independent-destination decision |
+| 4: Oct 26–30, monitoring/automation | Tune justified thresholds against retained observations | Create one-shot private report; verify JSON and exit code | Re-run identical fixture reporting to check dedup; simulate stale marker | Review timer/crontab duplication and rollback; enable only if separately approved | Write a two-minute case study and maintenance handoff |
 
-Compare `docs/inventory.md` with `docs/review-findings.md`. Pick three reported
-facts and identify the read-only evidence needed to verify each. Explain why a
-GitHub checkout cannot establish the Pi's OS, current services, or firewall.
+## Weekly deliverables and completion gates
 
-Completion: a private table with claim, source, observation date, and uncertainty.
-Do not promote a reported fact to verified without observing it.
+| Week | Useful homelab result | Safe troubleshooting exercise | Documentation | Interview explanation | Evidence needed |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Your reproduced current inventory | Ordinary directory fails required-mount check | Dated fact/source/unknown table | Why capacity and mount identity differ | Sanitized command results and two reports |
+| 2 | Verified client-to-app/network/path worksheet | Simulated DNS/HTTP/authentication distinction; no live outage injection | Incident record with tested/disproved hypotheses | Why a running container and 401 response prove different things | Runtime evidence where authorized, fixture tests elsewhere |
+| 3 | Supported recovery source/destination plan | Generated corruption and existing-target refusal | Restore scope, consistency, permissions and failure risks | Bytes vs DB integrity vs application recovery | Your lab reports; app startup only if actually approved/tested |
+| 4 | Repeatable private health collection and response guide | Generated stale/invalid marker and incomplete bundle | Threshold rationale, scheduler decision and maintenance handoff | How unknowns and meaningful exit codes prevent false green | Reports/tests and your own recorded explanation |
 
-## 2. Diagnose an absent disk
-
-Create an ordinary temporary directory on your development machine and pass
-it to the healthcheck once with `--path` and once with `--mount`, using
-`--skip-docker --json`. Inspect the exit code (`echo $?` in a POSIX shell,
-`$LASTEXITCODE` in PowerShell). No actual mount changes are needed.
-
-Explain why a directory left behind after a disk disappears can still pass a
-capacity check. State what `Path.is_mount()` cannot prove: disk identity,
-mount-on-boot reliability, and some same-filesystem bind mounts.
-
-Completion: retain the two sanitized reports and explain the different results.
-
-## 3. Process state versus service health
-
-Read `tests/test_healthcheck.py` and run the suite. Find cases for a healthy
-container, no configured health probe, a stopped container, a missing expected
-container, and a Docker timeout. Explain why an expected service must be named
-explicitly and why Docker health does not prove a user's client can reach it.
-
-On a private working branch, add a test for one new simulated failure before
-changing behavior. Never stop a live container just to complete the exercise.
-
-Completion: explain the check, threshold, exit status, and operator action for
-each case. Also explain how an external scheduler could detect *no report*.
-
-## 4. Prove a sample restore
-
-Run `python3 scripts/backup_lab.py` and read `backups/restore-test.md`.
-Locate the SQLite consistency boundary, checksum validation, isolated target,
-retention boundary, and nonzero failure exit in the implementation.
-
-Explain why copying a running application's database files is not equivalent
-to using a supported consistent export. Explain why a matching checksum does
-not prove the application version can use restored data.
-
-Completion: record a sample report and three additional checks required for a
-real Jellyfin, Portainer, or media-management recovery. Do not claim any of
-those applications was recovered by the sample.
-
-## 5. Trace one real service after evidence is available
-
-Use sanitized actual Compose sources. Trace a client's connection from network
-policy to published host address/port, container port, application, and storage.
-Map each bind mount or named volume to its owner, consistency method, backup
-scope, and restore destination. Locate health and logging configuration.
-
-Troubleshooting task: devise read-only checks that distinguish an absent mount,
-wrong UID/GID, application failure, and network restriction. Predict the result
-that would disprove each hypothesis before proposing a change.
-
-Completion: a reviewed service worksheet with evidence references and an
-explicit list of unknowns. Apply changes only after live-change approval.
-
-## 6. Explain this work in an interview
-
-Use `docs/portfolio.md` as a starting point. Give a two-minute account of the
-problem, a design decision, a reproduced failure, the verification, and the
-remaining access gap. Be ready to show a test rather than quote an uptime or
-recovery claim that has not been measured.
+Current completion: agent verified the host/storage baseline, created scripts
+and exercised both synthetic and real-archive isolated recovery. Learner
+reproduction and all live deployment/network/scheduling acceptance gates remain
+open. No exercise should stop a live container, alter mounts, launch downloads,
+or expose services. Keep reports and personal study records outside public Git.

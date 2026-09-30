@@ -1,57 +1,53 @@
-# Operating notes
+# Operating and maintenance notes
 
-## Baseline inspection
-
-First collect the [sanitized baseline](pi-evidence.md). Confirm the Docker
-context targets the intended local daemon; the healthcheck does not override
-CLI context or `DOCKER_HOST` settings. Do not infer Pi state from a workstation.
-
-Run the read-only check from the repository:
+Start with [dated inventory](inventory.md), [findings](review-findings.md) and
+[the evidence collection guide](pi-evidence.md). Confirm the Docker context
+targets this Pi before treating its response as live evidence.
 
 ```sh
-python3 scripts/healthcheck.py
+python3 scripts/healthcheck.py --mount /mnt/storage
 ```
 
-After confirming the external disk's actual mount point, include it with
-`--mount /actual/mountpoint`. This matters because an existing directory can
-remain present when the intended disk is not mounted.
+The mount check detects a missing filesystem instead of silently measuring a
+leftover directory. It does not establish disk identity or boot persistence.
+Defaults also collect service/resource/thermal evidence and mark unsupported
+or unconfigured coverage UNKNOWN. Exit 1 requires review; exit 2 identifies
+observed failure or invalid arguments. No check restarts or repairs anything.
 
-Record the date, symptoms and relevant results privately. The check only
-reports filesystem capacity and Docker's own state; verify important
-applications through their normal client or interface as well.
+Add exact expected runtime container names after observing them; source names
+alone do not prove the deployment. Configure explicitly reviewed HTTP endpoints
+privately. A process being up, Docker health and client reachability prove
+different things. Follow [script usage](../scripts/README.md).
 
-Once actual long-running container names are confirmed, add repeatable
-`--expect-container NAME` flags. This detects an expected container that no
-longer appears in Docker's inventory. Exit 1 needs review; exit 2 is failure
-or invalid arguments. A WARN for a running container without a health probe
-means the application has not supplied health evidence.
+## Triage an unavailable service
 
-## A service is unavailable
+1. Determine scope: one application, all containers, host or remote access.
+2. Check capacity and required mount before investigating media paths.
+3. Query selective status/restarts/health, then bounded recent logs privately.
+4. Test DNS, connection, HTTP and application authentication separately.
+5. For Radarr, verify both the configured download client and completed-path
+   translation; the observed mismatch does not explain every warning.
+6. Prepare one evidence-supported change, verification and rollback.
+   Obtain live-change approval, apply once, then test the original symptom.
 
-1. Determine the scope: one application, all containers, the host, or remote
-   access only. Try the local network before diagnosing the VPN.
-2. Review disk capacity and confirm required storage is mounted.
-3. Check container state and recent application logs locally. Logs may contain
-   credentials or personal data; redact any excerpt before publishing it.
-4. Compare the current image, configuration and recent changes with the last
-   known working setup. Write down what changed and when.
-5. Make one targeted change, then verify the original symptom and persistence
-   of application data. Record the result in an issue or case study.
+Do not publish logs containing credentials, media titles or endpoint details.
+Denied access should stay unknown, not be diagnosed as service failure.
 
-## Before an update
+## Updates and recovery
 
-Confirm the current image reference and configuration, create an appropriate
-application-consistent backup, and define a rollback plan. Test one service
-first. Do not prune volumes as a troubleshooting step: they may hold the only
-copy of application data.
+Record current image/application versions and exact ARM64 manifest, read release
+notes and schema migrations, export consistent application state, and test the
+restore boundary before approval. Rollback can require restoring compatible
+data, not only changing an image tag. No indiscriminate upgrades, automatic
+repair loops, volume pruning or ownership changes.
 
-## Case study template
+Existing Radarr archive recovery proved file/DB integrity only. Preserve an
+independent protected copy and verify application startup separately.
+See [backup guidance](../backups/README.md).
 
-- Problem and observed impact:
-- Evidence collected:
-- Hypothesis and diagnostic steps:
-- Change made:
-- Verification and measured outcome:
-- What would prevent recurrence:
+## Private incident record
 
-Leave results blank until they have been observed.
+Record date/scope, symptom/impact, bounded evidence, hypothesis and a result that
+would disprove it, approved change, rollback, verification and remaining gaps.
+Leave outcomes blank until observed. The current integration warnings have a
+diagnostic finding, not a completed repair or measured recovery time.

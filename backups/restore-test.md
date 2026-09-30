@@ -1,6 +1,67 @@
 # Restore test record
 
-## September 29 Linux recheck
+## September 29 native Radarr archive verification
+
+An existing native Radarr ZIP was restored into a new private temporary
+directory on the Pi. This used the completed application archive, not a raw copy
+of the running database. Recorded check time: **2026-09-29 22:58 PDT**
+(`2026-09-30T05:58:04Z`). The archive's modification time was
+`2026-09-29T03:25:48Z` (**September 28 20:25 PDT**); this is observed filesystem
+mtime, not an independently authenticated export timestamp.
+
+| Check | Observed result |
+| --- | --- |
+| Archive size | 3,701,463 bytes |
+| Files restored | 3 files; 12,997,196 bytes expanded |
+| ZIP integrity | CRC verification passed |
+| Restored bytes | Matched the corresponding archive entries |
+| SQLite check | `integrity_check` returned `ok`; 42 tables observed |
+| Isolation and permissions | New temporary directory mode `0700`; restored files mode `0600`; no live files overwritten |
+| Application startup / integrations | Not started or tested |
+| Version evidence | Archive filename reported `6.1.1.10360`; runtime version was not established by this restore test |
+| Cleanup | Temporary restored files removed; no archive/database/configuration contents copied into Git |
+| Storage limitation | Native archive and live configuration are on the same external SSD; shared disk-failure risk |
+
+This provides evidence that this existing archive could be read and restored
+to files and that its SQLite database passed an integrity check. It does not
+prove login, expected application data, integration behavior, recovery time,
+off-disk recovery, or whole-stack coverage. No new backup schedule, notification,
+service restart, or production replacement was performed.
+
+To repeat this authorized archive-level check, use a completed native export
+and a newly created isolated private workspace. Enumerate and bound all ZIP
+entries before writes; refuse absolute names, parent traversal, symlinks,
+unexpected names, and duplicate entries. Check archive CRCs, write only regular
+files under that workspace with mode `0600`, and compare each restored file's
+SHA-256 and byte count with its archive entry. Open only the isolated recovered
+database for `integrity_check`; do not open or copy the live database. Record
+sanitized counts/check outcomes, remove only the temporary workspace you created,
+and leave source archives untouched. Application startup needs a separate test
+instance, matching version, disabled integrations, and its own approved plan.
+
+## September 29 explicit-file tooling verification
+
+`backup_config.py` passed **17 generated-fixture tests on Linux**, with no skips.
+The tests cover hash-verified byte recovery and a private success marker;
+keep-all retention and existing snapshot refusal; corruption and traversal
+refusal before restore writes; existing restore/marker preservation; missing
+destinations; directory, database extension, and SQLite-header refusal; static
+input acknowledgement; overlapping paths; symlinks including parent components;
+mode checks without repairing existing permissions; size/count/free-space
+limits; changed inputs during read and after preflight; opaque export handling;
+deeply nested malformed JSON, and sanitized failures. No live source was passed
+to the new script.
+
+```sh
+python3 -m unittest discover -s tests -p 'test_backup_config.py' -v
+python3 scripts/backup_config.py --help
+```
+
+These fixture checks establish the explicit-file tool's tested behavior only.
+Production source selection, separate destination, encryption/key recovery,
+schedule, application-specific restore checks, and alert delivery remain pending.
+
+## Historical September 29 pre-Pi Linux recheck
 
 The unchanged reviewed lab passed in a disposable Linux workspace. All 14
 backup tests passed as part of the 28-test full suite, including POSIX mode

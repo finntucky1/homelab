@@ -1,6 +1,14 @@
 # Prioritized improvement backlog
 
-Current delivery update, 2026-09-29: authenticated implementation-branch
+Current local continuation, 2026-09-29: actual Pi/storage and a four-service
+Compose candidate inspected; existing Radarr archive restored privately and
+SQLite integrity verified; application startup/runtime access still open.
+Checker and private config/export/report tooling extended with isolated tests.
+See [progress](progress-2026-09-29.md). No remote/live changes were applied.
+The historical backlog below is retained; its unchecked items are acceptance
+gates rather than claims that no partial evidence now exists.
+
+Earlier delivery update, 2026-09-29: authenticated implementation-branch
 creation succeeded. Continue the reviewed package in a draft PR; the
 live-system backlog below remains open. Search for existing issues before
 publishing any issue drafts.
@@ -19,7 +27,9 @@ acceptance criteria below.
 
 ## P0 / 1. Verify host inventory and import sanitized Docker Compose definitions
 
-The repository needs a verified baseline before it can reproduce the running Raspberry Pi setup. Current hardware and service notes are owner-reported.
+The dated inventory now contains verified OS/storage facts and a sanitized
+Compose candidate. Runtime provenance and remaining deployment evidence are
+still needed before reproducing the running setup.
 
 Completion criteria:
 - [ ] Record the OS, architecture, Docker/Compose versions, and service image references.
