@@ -1,7 +1,7 @@
 # Networking and architecture
 
-Observed Pi/storage and Compose declarations are shown below. Dashed paths are
-owner-reported or require runtime confirmation. No real addresses are published.
+Pi-agent observations and reported network roles are shown below. Dashed paths
+need physical/access-policy confirmation. No real addresses are published.
 
 ```mermaid
 flowchart LR
@@ -10,14 +10,17 @@ flowchart LR
   Gateway -. uplink unverified .-> Pi[Observed Raspberry Pi 5 ARM64 Debian 13]
   Pi --> NVMe[Observed NVMe root]
   Pi --> SSD[Observed external ext4 SSD]
-  Pi -. declared ports .-> Apps[Portainer Jellyfin qBittorrent Radarr]
-  Apps -. declared persistent binds .-> SSD
+  Pi --> Apps[Observed running Portainer Jellyfin qBittorrent Radarr]
+  Apps --> SSD
+  Pi --> Metrics[Observed Grafana Prometheus node-exporter cAdvisor containers]
 ```
 
 The candidate source publishes 9000, 8096, 8080, 7878 and 6881 TCP/UDP without
-host-IP constraints. Runtime listeners, Docker networks, DNS, gateway forwards,
-IPv6 policy, VLANs and VPN access are unknown. Empty socket/route tables and DNS
-errors inside this restricted session cannot establish a host network failure.
+host-IP constraints. It is a historical candidate, not the current runtime
+source. Actual listener scope, full Docker networks, gateway forwards, IPv6,
+VLANs and VPN access remain unknown. A newer Pi-agent check established one
+Radarr-to-qBittorrent DNS/HTTP path; it does not establish all network access.
+See [runtime evidence](../docs/pi-runtime-follow-up.md).
 
 ## Diagnose the concrete Radarr integration symptom
 
@@ -30,16 +33,18 @@ Start with the configured client Test in Radarr, privately. Then distinguish:
 | DNS | Resolve configured client from Radarr; inspect exit only | Wrong hostname/network or unavailable resolver |
 | TCP/HTTP | Credential-free bounded HTTP status from Radarr | Connection failure or app listener; 401/403 establishes a response |
 | Authentication | Existing application client Test | Incorrect credentials/access policy; do not paste them into commands |
-| Path translation | Current completed path and mapped host directory | Both /downloads names currently point to different directories |
+| Path translation | Actual completed path and mapped host directory | Runtime shares host downloads: /data/downloads in qBittorrent, /downloads in Radarr; mapping exists, successful import unverified |
 | Permissions/storage | Numeric owners, ACLs, mount and capacity | A demonstrated reader/writer mismatch or missing storage |
 
-[Prepared commands and conditional correction](../docs/prepared-changes.md)
-preserve the original source and rollback. Do not infer that a mount mismatch
-causes the queue/history connectivity warning: these can be separate problems.
+[Prepared follow-ups](../docs/prepared-changes.md) withdraw the original candidate
+bind correction. Actual Radarr UID 1000 resolves qbittorrent and receives HTTP
+200 from qbittorrent:8080. Its enabled client uses a different configured host
+and reports a health error. A different hostname is not proof of a wrong setting;
+the Pi agent must inspect the exact configured path and Test error privately.
 
-The backed-up Radarr client host is not the Compose service DNS name and its
-remote prefix does not cover qBittorrent's current default /downloads.
-Those settings may be stale; inspect live configuration before changing them.
+The initial archive/candidate settings are historical. Later live configuration
+has a matching remote-path mapping. Keep DNS, transport, authentication, queue
+retrieval and file import as separate observations; no root cause is claimed.
 
 ## Access policy worksheet
 

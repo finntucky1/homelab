@@ -26,7 +26,7 @@ def response(stdout="", code=0):
     return SimpleNamespace(returncode=code, stdout=stdout)
 
 
-SKIPS = ["--skip-docker", "--skip-systemd", "--skip-resources", "--skip-thermal", "--skip-backup", "--skip-http"]
+SKIPS = ["--skip-docker", "--skip-systemd", "--skip-resources", "--skip-thermal", "--skip-backup", "--skip-http", '--skip-dns']
 
 
 class HealthCheckTests(unittest.TestCase):
@@ -48,8 +48,10 @@ class HealthCheckTests(unittest.TestCase):
         self.assertNotIn("private", report["detail"])
 
     def test_invalid_disk_capacity_is_unknown(self):
-        with tempfile.TemporaryDirectory() as directory, patch.object(healthcheck.shutil, "disk_usage", return_value=SimpleNamespace(total=0, free=0)):
-            self.assertEqual(healthcheck.disk_check(directory, 10)["status"], "UNKNOWN")
+        with tempfile.TemporaryDirectory() as directory:
+            for total, free in ((0, 0), (100, -1), (100, 101)):
+                with self.subTest(total=total, free=free), patch.object(healthcheck.shutil, "disk_usage", return_value=SimpleNamespace(total=total, free=free)):
+                    self.assertEqual(healthcheck.disk_check(directory, 10)["status"], "UNKNOWN")
 
     def test_missing_docker_is_unknown_even_with_expectations(self):
         with patch.object(healthcheck.shutil, "which", return_value=None):
@@ -104,6 +106,52 @@ class HealthCheckTests(unittest.TestCase):
                 with self.subTest(state=state, summary=summary), patch.object(healthcheck.subprocess, "run", return_value=response(json.dumps({"Names": "required", "State": state, "Status": summary}))):
                     self.assertEqual(healthcheck.docker_checks(["required"])[0]["status"], expected)
 
+    def test_restart_counts_are_selective_and_nonzero_is_historical_warning(self):
+        observations = '\n'.join(json.dumps({'name': '/' + name, 'restart_count': count})
+                                 for name, count in (('one', 0), ('two', 4)))
+        with patch.object(healthcheck.subprocess, 'run', return_value=response(observations)) as command:
+            reports = healthcheck.container_restart_checks('/fake/docker', {'one', 'two'})
+        self.assertEqual([item['status'] for item in reports], ['PASS', 'WARN'])
+        self.assertEqual(reports[1]['metrics']['restart_count'], 4)
+        self.assertIn('since this container was created', reports[1]['detail'])
+        args = command.call_args.args[0]
+        self.assertEqual(args[:5], ['/fake/docker', 'inspect', '--type', 'container', '--format'])
+        self.assertEqual(args[-2:], ['one', 'two'])
+        self.assertIn('.RestartCount', args[5])
+        self.assertNotIn('.Config', args[5])
+        self.assertEqual(command.call_args.kwargs['timeout'], 10)
+
+    def test_restart_denied_malformed_and_partial_observations_are_unknown(self):
+        cases = [response(code=1), response(), response('private diagnostics'), response('null'),
+                 response('{"name":"/app","restart_count":true}'), response('{"name":"/app","restart_count":-1}'),
+                 response('{"name":"/other","restart_count":0}'), response('{"name":"app","restart_count":0}'),
+                 response('{"name":"/app","restart_count":0,"private":"secret"}')]
+        for observation in cases:
+            with self.subTest(stdout=observation.stdout), patch.object(healthcheck.subprocess, 'run', return_value=observation):
+                reports = healthcheck.container_restart_checks('/fake/docker', {'app'})
+            self.assertEqual(reports[0]['status'], 'UNKNOWN')
+            self.assertNotIn('secret', json.dumps(reports))
+            self.assertNotIn('private diagnostics', json.dumps(reports))
+        for error in (OSError('PRIVATE-SECRET'), UnicodeError('PRIVATE-SECRET'), subprocess.TimeoutExpired('docker', 10)):
+            with patch.object(healthcheck.subprocess, 'run', side_effect=error):
+                reports = healthcheck.container_restart_checks('/fake/docker', {'app'})
+            self.assertEqual(reports[0]['status'], 'UNKNOWN')
+            self.assertNotIn('PRIVATE-SECRET', json.dumps(reports))
+
+    def test_restart_inventory_limit_and_empty_inventory_do_not_query(self):
+        with patch.object(healthcheck.subprocess, 'run') as command:
+            self.assertEqual(healthcheck.container_restart_checks('/fake/docker', set()), [])
+            reports = healthcheck.container_restart_checks('/fake/docker', {'app{}'.format(i) for i in range(65)})
+        command.assert_not_called()
+        self.assertEqual(reports[0]['status'], 'UNKNOWN')
+
+    def test_restarting_state_remains_fail_with_nonzero_restart_counter(self):
+        state = json.dumps({'Names': 'app', 'State': 'restarting', 'Status': 'Restarting (1)'})
+        counter = json.dumps({'name': '/app', 'restart_count': 4})
+        with patch.object(healthcheck.shutil, 'which', return_value='/fake/docker'), patch.object(healthcheck.subprocess, 'run', side_effect=[response(state), response(counter)]):
+            reports = healthcheck.docker_checks(['app'], check_restarts=True)
+        self.assertEqual([item['status'] for item in reports], ['FAIL', 'WARN'])
+
     def test_container_name_is_exact_and_duplicates_are_unknown(self):
         line = json.dumps({"Names": "app-2", "State": "running", "Status": "Up (healthy)"})
         with patch.object(healthcheck.shutil, "which", return_value="/fake/docker"), patch.object(healthcheck.subprocess, "run", return_value=response(line)):
@@ -148,15 +196,15 @@ class HealthCheckTests(unittest.TestCase):
 
     def test_load_boundaries_normalized_per_cpu(self):
         for load, expected in ((3.9, "PASS"), (4, "WARN"), (8, "FAIL")):
-            with self.subTest(load=load), patch.object(healthcheck.os, "cpu_count", return_value=4), patch.object(healthcheck.os, "getloadavg", return_value=(0, load, 0)):
+            with self.subTest(load=load), patch.object(healthcheck.os, "cpu_count", return_value=4), patch.object(healthcheck.os, "getloadavg", return_value=(0, load, 0), create=True):
                 self.assertEqual(healthcheck.load_check(1, 2)["status"], expected)
 
     def test_load_unavailable_or_invalid_is_unknown(self):
         with patch.object(healthcheck.os, "cpu_count", return_value=None):
             self.assertEqual(healthcheck.load_check(1, 2)["status"], "UNKNOWN")
-        with patch.object(healthcheck.os, "getloadavg", side_effect=OSError()):
+        with patch.object(healthcheck.os, "getloadavg", side_effect=OSError(), create=True):
             self.assertEqual(healthcheck.load_check(1, 2)["status"], "UNKNOWN")
-        with patch.object(healthcheck.os, "getloadavg", return_value=(0, float("nan"), 0)):
+        with patch.object(healthcheck.os, "getloadavg", return_value=(0, float("nan"), 0), create=True):
             self.assertEqual(healthcheck.load_check(1, 2)["status"], "UNKNOWN")
 
     def test_pressure_thresholds_and_unsupported_unknown(self):
@@ -222,6 +270,56 @@ class HealthCheckTests(unittest.TestCase):
 
     def probe(self):
         return healthcheck.validate_probe({"name": "media", "url": "http://127.0.0.1:8096/private/health", "timeout_seconds": 0.5})
+
+    def dns_probe(self):
+        return healthcheck.validate_dns_probe({'name': 'resolver', 'host': 'private-host.example', 'timeout_seconds': 0.5})
+
+    def test_dns_resolution_success_failure_and_deadline_hide_host_and_addresses(self):
+        probe = self.dns_probe()
+        for resolved, expected in ((True, 'PASS'), (False, 'FAIL')):
+            with self.subTest(resolved=resolved), patch.object(healthcheck.subprocess, 'run', return_value=response(json.dumps({'resolved': resolved}))) as command:
+                report = healthcheck.dns_check(probe)
+            self.assertEqual(report['status'], expected)
+            self.assertNotIn(probe['host'], json.dumps(report))
+            self.assertNotIn(probe['host'], ' '.join(command.call_args.args[0]))
+            self.assertEqual(command.call_args.kwargs['timeout'], 1.5)
+            self.assertEqual(json.loads(command.call_args.kwargs['input'])['host'], probe['host'])
+        with patch.object(healthcheck.subprocess, 'run', side_effect=subprocess.TimeoutExpired('private-host.example', 1.5)):
+            report = healthcheck.dns_check(probe)
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertNotIn(probe['host'], json.dumps(report))
+
+    def test_dns_worker_unavailable_or_invalid_is_unknown(self):
+        for stdout in ('broken', 'null', '{}', '{"resolved":1}', '{"resolved":true,"address":"PRIVATE-SECRET"}'):
+            with self.subTest(stdout=stdout), patch.object(healthcheck.subprocess, 'run', return_value=response(stdout)):
+                report = healthcheck.dns_check(self.dns_probe())
+            self.assertEqual(report['status'], 'UNKNOWN')
+            self.assertNotIn('PRIVATE-SECRET', json.dumps(report))
+        with patch.object(healthcheck.subprocess, 'run', side_effect=PermissionError('PRIVATE-SECRET')):
+            self.assertEqual(healthcheck.dns_check(self.dns_probe())['status'], 'UNKNOWN')
+
+    def test_dns_worker_only_returns_boolean_observation(self):
+        for answer, resolved in (([('PRIVATE-ADDRESS',)], True), ([], False)):
+            output = io.StringIO()
+            with patch.object(healthcheck.sys, 'stdin', io.StringIO(json.dumps(self.dns_probe()))), patch.object(healthcheck.socket, 'getaddrinfo', return_value=answer), contextlib.redirect_stdout(output):
+                self.assertEqual(healthcheck.dns_worker(), 0)
+            self.assertEqual(json.loads(output.getvalue()), {'resolved': resolved})
+        output = io.StringIO()
+        with patch.object(healthcheck.sys, 'stdin', io.StringIO(json.dumps(self.dns_probe()))), patch.object(healthcheck.socket, 'getaddrinfo', side_effect=OSError('PRIVATE-SECRET')), contextlib.redirect_stdout(output):
+            healthcheck.dns_worker()
+        self.assertEqual(json.loads(output.getvalue()), {'resolved': False})
+        self.assertNotIn('PRIVATE-SECRET', output.getvalue())
+
+    def test_dns_validation_rejects_addresses_urls_credential_and_invalid_input(self):
+        for host in ('127.0.0.1', '::1', 'http://private-host.example', 'name:53', 'secret@name',
+                     '-host.example', 'host..example', 'host..', '', 'a' * 64 + '.example'):
+            with self.subTest(host=host), self.assertRaises(ValueError):
+                healthcheck.validate_dns_probe({'name': 'resolver', 'host': host})
+        for probe in (None, {}, dict(self.dns_probe(), name='../unsafe'), dict(self.dns_probe(), timeout_seconds=True),
+                      dict(self.dns_probe(), timeout_seconds=16), dict(self.dns_probe(), headers={'secret': 'value'})):
+            with self.subTest(probe=probe), self.assertRaises(ValueError):
+                healthcheck.validate_dns_probe(probe)
+        self.assertEqual(healthcheck.validate_dns_probe({'name': 'resolver', 'host': 'localhost.'})['timeout_seconds'], 3.0)
 
     def test_http_success_and_status_mismatch_hide_endpoint_and_bound_worker(self):
         probe = self.probe()
@@ -338,6 +436,29 @@ class HealthCheckTests(unittest.TestCase):
         self.assert_invalid(["--http-probe", "app=http://localhost/", "--http-probe", "app=http://localhost/other"])
         self.assert_invalid(["--http-probe", "http://localhost/"])
 
+    def test_explicit_dns_cli_config_and_restart_options(self):
+        config = {'dns_probes': [self.dns_probe()], 'check_container_restarts': True}
+        flags = [item for item in SKIPS if item not in ('--skip-docker', '--skip-dns')]
+        with patch.object(healthcheck, 'dns_check', return_value=healthcheck.result('dns:resolver', 'PASS', 'resolved')) as dns, patch.object(healthcheck, 'docker_checks', return_value=[]) as docker:
+            self.assertEqual(self.invoke(flags, config)[0], 0)
+        dns.assert_called_once_with(self.dns_probe())
+        docker.assert_called_once_with([], True)
+        with patch.object(healthcheck, 'dns_check', return_value=healthcheck.result('dns:resolver', 'PASS', 'resolved')) as dns:
+            self.invoke([item for item in SKIPS if item != '--skip-dns'] + ['--dns-probe', 'resolver=private-host.example'])
+        self.assertEqual(dns.call_args.args[0]['timeout_seconds'], 3.0)
+        self.assert_invalid(['--dns-probe', 'resolver=private-host.example', '--dns-probe', 'resolver=other.example'])
+        self.assert_invalid(['--dns-probe', 'private-host.example'])
+        self.assert_invalid(['--skip-docker', '--check-container-restarts'])
+        self.assert_invalid([], {'check_container_restarts': 1})
+        self.assert_invalid([], {'dns_probes': 'wrong'})
+
+    def test_unconfigured_dns_is_unknown_without_resolver_query(self):
+        with patch.object(healthcheck, 'dns_check') as dns:
+            code, report = self.invoke([item for item in SKIPS if item != '--skip-dns'])
+        dns.assert_not_called()
+        self.assertEqual(code, 1)
+        self.assertEqual(report['checks'][-1]['status'], 'UNKNOWN')
+
     def assert_invalid(self, args, config=None):
         with patch.object(healthcheck, "disk_check") as disk, contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
             if config is None:
@@ -381,6 +502,16 @@ class HealthCheckTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 healthcheck.read_text(path)
 
+    def test_argparse_diagnostics_do_not_echo_private_values(self):
+        for flags in (["--min-free-percent", "PRIVATE-SECRET"], ["--PRIVATE-SECRET"],
+                      ["--systemd-scope", "PRIVATE-SECRET"]):
+            output = io.StringIO()
+            with patch.object(healthcheck, "disk_check") as disk, contextlib.redirect_stderr(output), self.assertRaises(SystemExit) as error:
+                healthcheck.main(flags)
+            self.assertEqual(error.exception.code, 2)
+            self.assertNotIn("PRIVATE-SECRET", output.getvalue())
+            disk.assert_not_called()
+
 
     @unittest.skipUnless(hasattr(os, "mkfifo"), "POSIX FIFO required")
     def test_fifo_and_directory_marker_are_unknown_without_blocking(self):
@@ -408,7 +539,7 @@ class HealthCheckTests(unittest.TestCase):
                     observed = subprocess.run([sys.executable, healthcheck.__file__, "--config", str(path)],
                                               capture_output=True, text=True, timeout=1, check=False)
                     self.assertEqual(observed.returncode, 2)
-                    self.assertIn("Cannot read private JSON config", observed.stderr)
+                    self.assertIn("Invalid healthcheck arguments or private configuration", observed.stderr)
 
     @unittest.skipUnless(os.name == "posix", "POSIX ownership and modes required")
     def test_private_marker_requires_regular_owned_0600_file(self):

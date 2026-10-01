@@ -245,6 +245,7 @@ def verify(snapshot):
 def restore(snapshot, target, marker=None):
     snapshot = private_dir(snapshot)
     manifest = verify(snapshot)
+    manifest_record, unused_header = read_regular(snapshot / "manifest.json", private=True, max_bytes=MAX_MANIFEST_BYTES)
     target = new_path(target)
     if overlaps(target, snapshot.parent):
         raise BackupError("Restore target must be outside the snapshot destination.")
@@ -260,7 +261,13 @@ def restore(snapshot, target, marker=None):
         if record != expected or checked != expected:
             raise BackupError("Restored bytes failed verification; incomplete restore retained for review.")
     if marker is not None:
+        # Refuse a marker for an edited manifest even when copied payloads match
+        # the original records. A marker must describe the verified snapshot.
+        if verify(snapshot) != manifest:
+            raise BackupError("Snapshot changed during restore; recovery marker was not written.")
         record, unused_header = read_regular(snapshot / "manifest.json", private=True, max_bytes=MAX_MANIFEST_BYTES)
+        if record != manifest_record:
+            raise BackupError("Snapshot changed during restore; recovery marker was not written.")
         proof = {"schema": 1, "kind": "config-export-recovery", "status": "verified",
                  "created_at": manifest["created_at"], "recovered_at": utc_now(),
                  "snapshot_id": manifest["snapshot_id"], "manifest_sha256": record["sha256"]}

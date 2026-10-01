@@ -1,6 +1,6 @@
 # Portfolio evidence and honest interview explanations
 
-This is agent-assisted engineering work on September 29, 2026. The owner defined
+This is agent-assisted engineering work on September 29–30, 2026. The owner defined
 the goals and boundaries; the agent performed these inspections, implementations
 and tests. Reproduce and explain each exercise before claiming personal
 implementation/troubleshooting proficiency. No invented uptime, speedup,
@@ -13,8 +13,9 @@ live evidence. Work: inspect the actual Pi read-only, preserve source/runtime
 distinctions, review logs privately and record constraints. Design: expose
 UNKNOWN for denied access, separate container state from HTTP response evidence,
 use configurable disk/resource/thermal/backup checks with actionable output.
-Troubleshooting: identify distinct download directories and actual Radarr
-queue/history warnings; avoid claiming an unproven root cause.
+Troubleshooting: distinguish an initial candidate path mismatch from later
+runtime shared storage, and DNS/HTTP success from the enabled client's health
+error. The [follow-up](pi-runtime-follow-up.md) preserves disconfirming evidence.
 Result: dated inventory and tested checker; live Docker/network remediation
 remains open. Evidence: [inventory](inventory.md), [findings](review-findings.md),
 [tests](verification.md).
@@ -22,8 +23,8 @@ remains open. Evidence: [inventory](inventory.md), [findings](review-findings.md
 Interview draft: “I directed an assisted audit, then reproduced its checks.
 The key decision was distinguishing missing evidence from an outage. I can show
 how simulated unhealthy, missing-container and denied-tool cases affect the
-report. The audit found a path inconsistency; confirming runtime connectivity
-is the next diagnostic step.” Use “I reproduced” only after you do it.
+report. The candidate suggested a path inconsistency; newer runtime evidence
+showed shared storage. I would check the exact configured client before changing it.” Use “I reproduced” only after you do it.
 
 ## Project 2: recovery with explicit proof boundaries
 
@@ -66,3 +67,19 @@ still needs de-duplication and access review before enabling it.”
 An artifact/test result supports agent-executed work. Learner completion requires
 your own explanation and reproduction, recorded privately. Use
 [the four-week sequence](learning-exercises.md) to build that evidence.
+
+## MSI development continuation
+
+Problem: current Pi evidence had superseded the initial candidate findings, and
+stored health reports needed stronger validation. The MSI preserved both Git
+histories, attributed the runtime follow-up, withdrew an unsupported bind edit,
+and reviewed/tested failure handling in isolated Windows/Linux environments.
+Added explicit DNS-resolution and lifetime restart-counter observations; neither
+automatically changes live services. Full local Linux coverage passed while
+Windows host-feature skips remained visible. See [verification](verification.md).
+
+Interview explanation to reproduce: describe one UNKNOWN case, one corrupted
+report/snapshot refusal, and the evidence that disproved the candidate bind
+hypothesis. Explain why resolution, HTTP status, authentication and import are
+different checks. State the agent's contribution and your own retained exercises.
+Do not claim learner completion, uptime or independent disaster recovery.

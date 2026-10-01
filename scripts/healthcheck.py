@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only Linux host checks and explicitly configured HTTP response probes."""
+"""Read-only Linux host checks and explicit HTTP/name-resolution probes."""
 
 import argparse
 from datetime import datetime, timezone
@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import stat
 import sys
@@ -28,6 +29,12 @@ DEFAULTS = {
     "pressure_warn_percent": 10.0, "pressure_fail_percent": 25.0,
     "temperature_warn_c": 70.0, "temperature_fail_c": 80.0,
 }
+
+
+class SafeParser(argparse.ArgumentParser):
+    def error(self, unused):
+        # argparse otherwise repeats invalid private paths, URLs and values.
+        super().error("Invalid healthcheck arguments or private configuration; use --help and scripts/README.md")
 
 
 def result(name, status, detail, action="", **metrics):
@@ -72,8 +79,8 @@ def disk_check(path, minimum_free, require_mount=False):
             return result(name, "FAIL", "Not a detected mount point: {}".format(location),
                           "Verify the intended disk and mount before using its data.")
         usage = shutil.disk_usage(location)
-        if usage.total <= 0:
-            raise ValueError("No capacity")
+        if usage.total <= 0 or not 0 <= usage.free <= usage.total:
+            raise ValueError("Invalid capacity counters")
         free_percent = 100.0 * usage.free / usage.total
         status = "PASS" if free_percent >= minimum_free else "FAIL"
         return result(name, status,
@@ -89,7 +96,44 @@ def disk_check(path, minimum_free, require_mount=False):
                       "Check the path and existing read access; do not weaken permissions.")
 
 
-def docker_checks(expected_containers=()):
+def container_restart_checks(executable, names):
+    """Request only selected counters; never collect a full inspect document."""
+    if not names:
+        return []
+    unavailable = result('container-restarts', 'UNKNOWN', 'Container restart counters are unavailable or unrecognized.',
+                         'Review existing Docker access and CLI compatibility; no full inspect data is collected.')
+    if len(names) > 64:
+        return [result('container-restarts', 'UNKNOWN', 'More than 64 observed containers; restart-counter query was not run.',
+                       'Container state checks remain available; counter collection requires at most 64 observed containers.')]
+    template = '{"name":{{json .Name}},"restart_count":{{json .RestartCount}}}'
+    try:
+        response = subprocess.run([executable, 'inspect', '--type', 'container', '--format', template] + sorted(names),
+                                  capture_output=True, text=True, encoding='utf-8', errors='strict', timeout=10, check=False)
+        if response.returncode != 0:
+            raise ValueError('Unavailable counters')
+        counters = {}
+        for line in response.stdout.strip().splitlines():
+            record = json.loads(line)
+            if not isinstance(record, dict) or set(record) != {'name', 'restart_count'}:
+                raise ValueError('Invalid counter record')
+            name, count = record['name'], record['restart_count']
+            if not isinstance(name, str) or not name.startswith('/'):
+                raise ValueError('Invalid counter name')
+            name = name[1:]
+            if name not in names or name in counters or type(count) is not int or count < 0:
+                raise ValueError('Invalid counter')
+            counters[name] = count
+        if set(counters) != set(names):
+            raise ValueError('Incomplete counters')
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, RecursionError, subprocess.TimeoutExpired):
+        return [unavailable]
+    return [result('container-restarts:{}'.format(name), 'WARN' if count else 'PASS',
+                   '{} recorded restart(s) since this container was created.'.format(count),
+                   'Review the counter with prior observations; a nonzero lifetime count does not establish a current fault or restart rate.' if count else '',
+                   restart_count=count) for name, count in sorted(counters.items())]
+
+
+def docker_checks(expected_containers=(), check_restarts=False):
     """A failed observation is UNKNOWN; only observed bad state is FAIL."""
     expected = set(expected_containers)
     executable = shutil.which("docker")
@@ -141,6 +185,8 @@ def docker_checks(expected_containers=()):
     for name in sorted(expected - seen):
         checks.append(result("container:{}".format(name), "FAIL", "Expected container is missing from Docker output.",
                              "Compare exact Docker names with the verified inventory; investigate before changing expectations."))
+    if check_restarts:
+        checks.extend(container_restart_checks(executable, seen))
     return checks
 
 
@@ -311,6 +357,55 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def dns_worker():
+    try:
+        probe = validate_dns_probe(json.loads(sys.stdin.read(4097)))
+        resolved = bool(socket.getaddrinfo(probe['host'], None, type=socket.SOCK_STREAM))
+        report = {'resolved': resolved}
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError, RecursionError):
+        report = {'resolved': False}
+    print(json.dumps(report))
+    return 0
+
+
+def dns_check(probe):
+    name = 'dns:{}'.format(probe['name'])
+    try:
+        response = subprocess.run([sys.executable, str(Path(__file__).resolve()), '--_dns-worker'],
+                                  input=json.dumps(probe), capture_output=True, text=True, encoding='utf-8', errors='strict',
+                                  timeout=probe['timeout_seconds'] + 1.0, check=False)
+        report = json.loads(response.stdout)
+        if response.returncode != 0 or not isinstance(report, dict) or set(report) != {'resolved'} or type(report['resolved']) is not bool:
+            raise ValueError('Invalid resolver observation')
+    except subprocess.TimeoutExpired:
+        return result(name, 'FAIL', 'Configured name-resolution probe exceeded its bounded deadline.',
+                      'Review resolver availability from this host; hostnames and addresses are intentionally omitted.')
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, RecursionError):
+        return result(name, 'UNKNOWN', 'Name-resolution worker was unavailable or returned invalid observation data.',
+                      'Check local Python execution and retry; hostnames and addresses are intentionally omitted.')
+    status = 'PASS' if report['resolved'] else 'FAIL'
+    return result(name, status, 'Configured hostname {} through the operating-system resolver.'.format(
+        'resolved' if report['resolved'] else 'could not be resolved'),
+        'Resolution can use hosts files or caches; it does not prove a route or application response.' if status == 'PASS' else
+        'Check the configured hostname and resolver from this host before changing network settings.')
+
+
+def validate_dns_probe(probe):
+    if not isinstance(probe, dict) or set(probe) - {'name', 'host', 'timeout_seconds'}:
+        raise ValueError('DNS probes require only name, host and timeout_seconds')
+    name, host = probe.get('name'), probe.get('host')
+    if not isinstance(name, str) or not NAME.fullmatch(name):
+        raise ValueError('DNS probe labels must be simple short identifiers')
+    if (not isinstance(host, str) or not 1 <= len(host) <= 253
+            or not all(re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?', label)
+                       for label in (host[:-1] if host.endswith('.') else host).split('.')) or host.replace('.', '').isdigit()):
+        raise ValueError('DNS probes require an ASCII hostname, without a URL, address, port or credentials')
+    timeout = probe.get('timeout_seconds', 3.0)
+    if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0.1 <= timeout <= 15:
+        raise ValueError('DNS probe timeout_seconds must be between 0.1 and 15')
+    return {'name': name, 'host': host, 'timeout_seconds': float(timeout)}
+
+
 def http_worker():
     """Child process keeps DNS, TLS and headers under an overall parent deadline."""
     try:
@@ -391,7 +486,7 @@ def configuration(parser, args):
             config = json.loads(read_text(args.config, private=True))
         except (OSError, UnicodeError, ValueError, RecursionError):
             parser.error("Cannot read private JSON config; check access, size and syntax")
-    allowed = {"paths", "mounts", "expected_containers", "thresholds", "systemd_scope", "thermal_path", "backup_marker", "backup_max_age_hours", "http_probes"}
+    allowed = {"paths", "mounts", "expected_containers", "thresholds", "systemd_scope", "thermal_path", "backup_marker", "backup_max_age_hours", "http_probes", "dns_probes", "check_container_restarts"}
     if not isinstance(config, dict) or set(config) - allowed:
         parser.error("Config must be an object containing only documented keys")
     for key in ("paths", "mounts", "expected_containers"):
@@ -423,6 +518,10 @@ def configuration(parser, args):
         parser.error("Expected containers require exact Docker names, not patterns")
     if args.skip_docker and config["expected_containers"]:
         parser.error("--skip-docker cannot be combined with expected containers")
+    restarts = config.get('check_container_restarts', False) or args.check_container_restarts
+    if type(config.get('check_container_restarts', False)) is not bool or (restarts and args.skip_docker):
+        parser.error('Restart counters require Docker checks and a boolean config value')
+    config['check_container_restarts'] = restarts
     for key, fallback in (("systemd_scope", "system"), ("thermal_path", "/sys/class/thermal/thermal_zone0/temp"), ("backup_marker", None), ("backup_max_age_hours", 48.0)):
         supplied = getattr(args, key)
         config[key] = supplied if supplied is not None else config.get(key, fallback)
@@ -450,17 +549,36 @@ def configuration(parser, args):
         parser.error(str(error))
     if len({probe["name"] for probe in config["http_probes"]}) != len(config["http_probes"]):
         parser.error("HTTP probe labels must be unique")
+    probes = config.get('dns_probes', [])
+    if not isinstance(probes, list):
+        parser.error('dns_probes must be a list')
+    for item in args.dns_probe:
+        if '=' not in item:
+            parser.error('--dns-probe requires LABEL=HOST')
+        name, host = item.split('=', 1)
+        probes.append({'name': name, 'host': host})
+    if len(probes) > 16:
+        parser.error('At most 16 explicit DNS probes are supported')
+    try:
+        config['dns_probes'] = [validate_dns_probe(probe) for probe in probes]
+    except ValueError as error:
+        parser.error(str(error))
+    if len({probe['name'] for probe in config['dns_probes']}) != len(config['dns_probes']):
+        parser.error('DNS probe labels must be unique')
     return config
 
 
 def main(argv=None):
     if argv == ["--_http-worker"]:
         return http_worker()
-    parser = argparse.ArgumentParser(description=__doc__)
+    if argv == ['--_dns-worker']:
+        return dns_worker()
+    parser = SafeParser(description=__doc__)
     parser.add_argument("--config", help="Private JSON config; see scripts/README.md")
     parser.add_argument("--path", action="append", default=[], help="Additional filesystem path")
     parser.add_argument("--mount", action="append", default=[], help="Required detected mount point")
     parser.add_argument("--expect-container", action="append", default=[], help="Exact required Docker name")
+    parser.add_argument('--check-container-restarts', action='store_true', help='Read only formatted lifetime restart counters for up to 64 observed containers')
     for key, default in DEFAULTS.items():
         parser.add_argument("--" + key.replace("_", "-"), type=float, help="Threshold (default: {})".format(default))
     parser.add_argument("--systemd-scope", choices=("system", "user"), help="Failed-unit bus scope (default: system)")
@@ -468,16 +586,17 @@ def main(argv=None):
     parser.add_argument("--backup-marker", help="Private verified static config/export byte-recovery JSON marker")
     parser.add_argument("--backup-max-age-hours", type=float, help="Maximum marker snapshot age (default: 48)")
     parser.add_argument("--http-probe", action="append", default=[], metavar="LABEL=URL", help="Explicit credential-free HTTP response probe; repeatable")
-    for name in ("docker", "systemd", "resources", "thermal", "backup", "http"):
+    parser.add_argument('--dns-probe', action='append', default=[], metavar='LABEL=HOST', help='Explicit operating-system hostname-resolution probe; repeatable')
+    for name in ("docker", "systemd", "resources", "thermal", "backup", "http", 'dns'):
         parser.add_argument("--skip-" + name, action="store_true", help="Exclude {} checks from this report".format(name))
-    parser.add_argument("--json", action="store_true", help="Print structured JSON without private HTTP endpoints")
+    parser.add_argument("--json", action="store_true", help="Print structured JSON without private HTTP endpoints or DNS hostnames/addresses")
     args = parser.parse_args(argv)
     config = configuration(parser, args)
     thresholds = config["thresholds"]
     checks = [disk_check(path, thresholds["min_free_percent"]) for path in ["/"] + config["paths"]]
     checks += [disk_check(path, thresholds["min_free_percent"], True) for path in config["mounts"]]
     if not args.skip_docker:
-        checks.extend(docker_checks(config["expected_containers"]))
+        checks.extend(docker_checks(config["expected_containers"], config['check_container_restarts']))
     if not args.skip_systemd:
         checks.append(service_check(config["systemd_scope"]))
     if not args.skip_resources:
@@ -492,6 +611,10 @@ def main(argv=None):
         checks += [http_check(probe) for probe in config["http_probes"]] if config["http_probes"] else [result(
             "application-probes", "UNKNOWN", "No HTTP application probes configured; running containers do not prove reachability.",
             "Review supported health endpoints and configure private explicit probes.")]
+    if not args.skip_dns:
+        checks += [dns_check(probe) for probe in config['dns_probes']] if config['dns_probes'] else [result(
+            'dns-probes', 'UNKNOWN', 'No hostname-resolution probes configured; resolver availability is unverified.',
+            'Choose an approved hostname and configure an explicit private probe, or exclude this category with --skip-dns.')]
     exit_code = max(LEVELS[check["status"]] for check in checks)
     if args.json:
         print(json.dumps({"schema": 1, "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

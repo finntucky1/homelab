@@ -1,6 +1,10 @@
 # Access and portable delivery
 
-## Current local continuation — September 29, 2026
+## Current MSI review — September 30, 2026
+
+Fetched current remote branch and verified draft PR #1 at `d70f6666c4a0d38994eea2d33e1359529b972b2c`, base/main `6d78c043caba808e78c5790a24f171432fa2745c`. The prior MSI branch at `916a1d608fd87d28b33f0ee311806e410edec1d3` diverges and was preserved unchanged. A separate detached review worktree starts from the exact remote head. No branch/repository/PR was recreated. Recheck remote before publishing, integrate any new Pi commits, and update only the existing branch without force. Keep PR draft and unmerged. Historical access/portable-delivery instructions below are not instructions to create another branch or PR.
+
+## Historical Pi continuation before publication — September 29, 2026
 
 Existing draft PR #1 was read and attached to this chat. Its head is
 8d11e96b4b9d9b84cec2dd90290451cae0c9cc51. No usable local homelab checkout was
@@ -95,8 +99,8 @@ patch in a clean checkout on a separate branch, run the documented tests, and
 inspect the staged changes before pushing. If the base has changed, review the
 differences; do not force apply, reset, or overwrite local work.
 
-After access is repaired, publish the existing branch, open the prepared
-**draft** PR against `main`, and create only issues not already present. Do not merge the PR as part
+The draft PR was subsequently created. Continue **existing PR #1**; do not
+repeat the historical create commands below. Create issues only when needed and absent. Do not merge the PR as part
 of this delivery. No live Pi action follows automatically from publishing code.
 For an authenticated GitHub CLI, use `gh pr create --draft` with the prepared
 title/body and explicit `--base main` and `--head codex/homelab-operations-2026-09-23`.

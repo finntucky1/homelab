@@ -1,17 +1,19 @@
 # Four weeks of practical study
 
-Proposed first complete study block: **October 5–30, 2026**, weekdays
-**4–5 PM America/Los_Angeles**. No calendar event or scheduled job was created.
+Exercise sequence for four weeks, weekdays
+**4–5 PM America/Los_Angeles**. Use dates/statuses in the existing private tracker;
+this guide does not reschedule sessions. The earlier October 5–30 proposal is
+superseded by the owner's existing plan. No event or job is created here.
 Each session: 10 minutes understand, 35 minutes exercise, 15 minutes record and
 explain. Existing agent-created artifacts shorten setup; they do not mark the
 learner complete. Leave completion open until an artifact/test supports it.
 
 | Week | Monday | Tuesday | Wednesday | Thursday | Friday |
 | --- | --- | --- | --- | --- | --- |
-| 1: Oct 5–9, Linux/inventory | Reproduce OS/architecture/memory checks | Trace lsblk, df, mount and fstab roles without edits | Inspect numeric permissions and explain PUID vs effective process ID | Compare --path with --mount on a temporary directory; simulate missing storage | Write inventory addendum and explain one uncertainty |
-| 2: Oct 12–16, networking/containers | Trace one declared port and LAN/VPN policy | After authorized access, reconcile runtime source/images/networks | Distinguish DNS, TCP, HTTP and authentication using bounded checks | Reproduce simulated HTTP/denied-tool failure; analyze Radarr path mappings | Write incident worksheet with hypotheses and disconfirming evidence |
-| 3: Oct 19–23, backup/recovery | Map config, secrets, DB and media recovery needs | Re-run synthetic SQLite lab; explain online-backup API | Back up generated static config with backup_config.py | Corrupt only a generated snapshot; prove restore refusal and no overwrite | Document real Radarr proof boundaries and independent-destination decision |
-| 4: Oct 26–30, monitoring/automation | Tune justified thresholds against retained observations | Create one-shot private report; verify JSON and exit code | Re-run identical fixture reporting to check dedup; simulate stale marker | Review timer/crontab duplication and rollback; enable only if separately approved | Write a two-minute case study and maintenance handoff |
+| 1: Linux/inventory | Reproduce OS/architecture/memory checks | Trace lsblk, df, mount and fstab roles without edits | Inspect numeric permissions and explain PUID vs effective process ID | Compare --path with --mount on a temporary directory; simulate missing storage | Write inventory addendum and explain one uncertainty |
+| 2: Networking/containers | Trace one declared port and LAN/VPN policy | After authorized access, reconcile runtime source/images/networks | Distinguish DNS, TCP, HTTP and authentication using bounded checks | Reproduce simulated HTTP/denied-tool failure; analyze Radarr path mappings | Write incident worksheet with hypotheses and disconfirming evidence |
+| 3: Backup/recovery | Map config, secrets, DB and media recovery needs | Re-run synthetic SQLite lab; explain online-backup API | Back up generated static config with backup_config.py | Corrupt only a generated snapshot; prove restore refusal and no overwrite | Document real Radarr proof boundaries and independent-destination decision |
+| 4: Monitoring/automation | Tune justified thresholds against retained observations | Create one-shot private report; verify JSON and exit code | Re-run identical fixture reporting to check dedup; simulate stale marker | Review timer/crontab duplication and rollback; enable only if separately approved | Write a two-minute case study and maintenance handoff |
 
 ## Weekly deliverables and completion gates
 

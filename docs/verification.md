@@ -1,9 +1,61 @@
 # Verification record
 
+## MSI review and local testing — September 30, 2026
+
+Reviewed all **34** files changed in the incoming PR at `d70f666`; all four
+scripts and four test files received independent code review, and the remaining
+documentation/configuration files received source/privacy/command review. The
+old diverged MSI checkout remains intact. This continuation adds a sanitized
+runtime-evidence addendum and development fixes; no live Pi command was run.
+
+| Environment / exact command | Passed | Failed | Skipped | Exit / scope |
+| --- | ---: | ---: | ---: | --- |
+| MSI Windows 11, Python 3.12.14: `python.exe -m unittest discover -s tests -v` | 74 | 0 | 36 | 0; generated/mocked data, POSIX features explicitly skipped |
+| MSI local WSL Linux x86_64, Python 3.12.8: `/usr/bin/python3 -m unittest discover -s tests -v` | 110 | 0 | 0 | 0; disposable Linux copy, including POSIX/FIFO/symlink cases |
+| MSI WSL: `/usr/bin/python3 scripts/backup_lab.py --json` | 1 demo | 0 | 0 | 0; synthetic SQLite, hashes, corruption refusal, retention and cleanup |
+| MSI WSL: `backup_config.py --json create/verify/restore` | 3 operations | 0 | 0 | 0 each; generated static fixture, custom destination and private marker |
+| MSI WSL: existing/corrupted restore and corrupted verify | 3 expected refusals | 0 | 0 | 2 each; source/target preserved, no false success marker |
+| MSI WSL: simulated UNKNOWN report save/replay, then damaged bundle | 3 expected outcomes | 0 | 0 | 1, 1, 3; daily duplicate retained, damaged bundle not overwritten |
+| MSI Windows/WSL: `scripts/healthcheck.py --help`, `scripts/backup_config.py --help`, `scripts/report_snapshot.py --help` | CLI import/help checks | 0 | 0 | 0; no live observations |
+| MSI static: Python 3.8 `ast.parse(feature_version=(3, 8))` | 8 files | 0 | 0 | 0; grammar only, no 3.8 runtime |
+| MSI static: local Markdown targets/fences, scoped privacy scan and full diff review | 22 Markdown files | 0 | 0 | 0; heuristic scan supplemented by review |
+| MSI WSL: `yaml.safe_load` historical candidate | 1 file | 0 | 0 | 0; four services, syntax only; Docker Compose validation not rerun on MSI |
+| `git diff --check` | Whitespace check | 0 | 0 | 0 |
+
+The Windows executable is the bundled runtime, not a PATH alias. Exact
+absolute executable paths, temporary fixture arguments, subprocess outputs and
+expected exits are retained in the private MSI run report. WSL tests used a new
+temporary Linux directory because Windows filesystem modes cannot establish
+POSIX privacy. No packages or live containers were installed/changed.
+
+The initial Windows baseline failed because Linux-only `os.getloadavg` mocks
+assumed the API existed. Test portability was corrected; unavailable live APIs
+still return UNKNOWN. Python 3.12 `Path.lstat` behavior also required correcting
+a source-mutation test to inject its change at the actual read boundary.
+
+Code fixes validate private report schema/severity/timestamps and bound reads;
+refuse permissive, symlink, oversized, extra/incomplete or corrupt bundles;
+preserve daily history and nonzero outcomes; reverify manifests before recovery
+markers; and reject malformed/deep synthetic manifests. New opt-in restart
+counters and explicit bounded hostname-resolution probes have failure/privacy
+tests. Unconfigured DNS remains UNKNOWN. No report contains probe endpoints or
+resolved addresses; local filesystem/container/unit labels may need redaction.
+
+External documentation check: 22 of 23 unique links returned HEAD 200. The
+Raspberry Pi documentation endpoint returned HEAD 403; the linked official
+get_throttled content was verified through browsing. HTTP checks do not prove
+every fragment anchor. No lint configuration exists. Systemd full verification,
+Python 3.8 execution and current live Compose validation remain Pi-side checks.
+These MSI totals are separate from the Pi's historical 86 tests below.
+
+## Current evidence separation — September 30
+
+[Pi runtime follow-up](pi-runtime-follow-up.md) supersedes access/publication/permission statements in the initial record below. Pi-host mocked test results remain **86 passed, zero skipped** as recorded by that agent; they are not added to MSI totals. The MSI review runs are recorded separately above the historical sections when complete. No MSI command proves live Pi health.
+
 Latest Pi continuation: **2026-09-29 America/Los_Angeles**. Initial integration:
 2026-09-23. Historical checks below are retained as dated provenance.
 
-## Actual Pi continuation and isolated testing
+## Historical initial Pi continuation and isolated testing
 
 The session's device model, kernel, architecture, storage and OS identify the
 actual Pi. Python 3.13.5 on ARM64 executed these checks. Bounded read-only

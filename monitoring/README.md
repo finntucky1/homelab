@@ -10,19 +10,22 @@ thresholds, actions and explicit coverage exclusions.
 | --- | --- | --- |
 | Capacity and mounts | Root plus explicit paths/required mount points | Verify disk identity and intended layout separately |
 | Container state/health | Docker inventory; optional exact required names | Docker access denial is UNKNOWN; no health result is UNKNOWN |
+| Restart counters | Opt-in `--check-container-restarts`, selected formatted lifetime counts | Zero PASS, nonzero WARN; not a restart rate; invalid/denied UNKNOWN |
 | Failed units | System or user bus `systemctl --failed` | Inaccessible bus is UNKNOWN, not an observed service failure |
 | Available memory | Linux `MemAvailable/MemTotal` | Configure workload thresholds; no process inspection or repairs |
 | Resource contention | Five-minute load/CPU; memory PSI `some avg10` | I/O wait contributes to load; unsupported PSI is UNKNOWN |
 | Temperature | Explicit/default sysfs file, thresholds | Confirm the CPU thermal zone; inaccessible data is UNKNOWN |
 | Pi power/throttling | `vcgencmd get_throttled` current/history flags | Current flags fail, historical flags warn; unavailable utility is UNKNOWN |
 | Application response | Explicit bounded credential-free HTTP GET/status probes | No default requests; response from this host does not establish login/data/client access |
+| Hostname resolution | Explicit bounded operating-system resolver worker; hostname/address omitted | Hosts/cache may answer; resolution does not establish transport/app health |
 | Backup evidence | Configured schema-validated recovery marker and snapshot packaging age | Static config/export byte evidence only; source-data age, authenticity and application recovery are separate |
 
 Power/throttling bit interpretation follows [Raspberry Pi's firmware command
 reference](https://www.raspberrypi.com/documentation/computers/os.html#get_throttled).
 Threshold defaults are proposals to review after observation, not measured Pi
-limits or proof that the cooling/power path is adequate. Prometheus/Grafana and
-external alerting remain proposals rather than claimed deployments.
+limits or proof that cooling/power is adequate. Newer [Pi evidence](../docs/pi-runtime-follow-up.md)
+found existing Prometheus, Grafana, node-exporter and cAdvisor containers. Their
+scrape coverage, dashboards and alerts remain unverified. Do not duplicate them.
 
 ## Interpreting and collecting reports
 
@@ -31,7 +34,7 @@ review. Exit `2` means an observed critical `FAIL` or invalid arguments. A
 successful Docker inventory with a missing required name fails; an inaccessible
 Docker query cannot prove that name is absent. A running container without a
 health result or configured HTTP probe does not establish availability.
-No backup marker or HTTP probe is configured by default: those coverage gaps
+No backup marker, HTTP or DNS probe is configured by default: those coverage gaps
 are explicit `UNKNOWN` observations. A skipped category is excluded from the
 report, so a green selected report does not cover it.
 
@@ -68,8 +71,8 @@ collection deadline. Review failures remain nonzero unit results: exit `1`
 means incomplete/warning coverage and `2` means critical observations. Neither
 causes a repair or restart. A collection/storage error uses exit `3`.
 
-The existing scheduler is **unverified**: the system bus was denied during the
-host evidence inspection. Do not assume no jobs exist. With existing access,
+Complete scheduler inventory remains **unverified**. A later bounded system
+failed-unit query succeeded; that does not establish all scheduled jobs. Do not assume no jobs exist. With existing access,
 inspect schedules before proposing installation so a new collector cannot
 silently duplicate existing work:
 

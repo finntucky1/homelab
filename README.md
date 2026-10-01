@@ -1,72 +1,47 @@
 # Homelab
 
-Raspberry Pi operations, recovery and practical Linux/networking learning.
-This continuation builds on the existing draft PR without creating another
-project or deploying a second stack.
+Personal Raspberry Pi operations, recovery and practical Linux/networking learning, developed with Codex assistance. Owner reproduction and learner completion are recorded separately from agent implementation and testing.
 
-## Current evidence — September 29, 2026
+## Current evidence — September 30, 2026
 
-The actual Pi was inspected from a restricted local session: Pi 5 ARM64,
-Debian 13, Samsung 990 EVO **Plus** NVMe root and a 3.6 TiB external ext4 device.
-Root was 3% used and external storage 30% used at baseline. A four-service
-Compose candidate was inspected and validated. Runtime Docker/systemd/network
-access remains incomplete. See [dated inventory](docs/inventory.md).
+The Pi agent observed Raspberry Pi 5 ARM64, Debian 13, Samsung 990 EVO **Plus** NVMe root and a 3.6 TiB external ext4 SSD. Initial usage was root 3%, external storage 30%. These are point observations supplied by the Pi agent. See [inventory](docs/inventory.md).
 
-An existing native Radarr ZIP was restored privately into an isolated temporary
-directory. CRC, file-byte comparisons and SQLite integrity passed. The restored
-application was not started, and this same-device archive is not independent
-disaster recovery. See [restore evidence](backups/restore-test.md).
+The newer [runtime follow-up](docs/pi-runtime-follow-up.md) records Docker server `26.1.5+dfsg1`, four running application containers with zero restarts, Jellyfin's passing declared health check, and existing Grafana, Prometheus, node-exporter and cAdvisor containers. Scrape coverage, alerts and sustained availability remain unverified.
+
+Radarr's actual process resolves qBittorrent and receives HTTP 200 on the tested service path. Its enabled client uses a different host and still reports a health error; the cause is unproven. Runtime labels identify a different Compose source from the [historical candidate](docker-compose/README.md). Both apps already share host downloads with a current path mapping, so the candidate bind edit was withdrawn.
+
+An existing native Radarr ZIP passed isolated CRC, byte comparison and SQLite integrity checks on the Pi. Application startup was not tested. The archive shares the live SSD's failure risk; independent disaster recovery is unverified. See [restore evidence](backups/restore-test.md).
 
 | Work | Implemented / exercised | Remaining boundary |
 | --- | --- | --- |
-| Health report | Filesystems, Docker, failed units, memory/load/pressure, temperature/throttling, recovery marker, explicit HTTP probes; readable/JSON output and failure tests | Denied tools and unconfigured probes are UNKNOWN; no deployment or uptime claim |
-| Recovery | Existing synthetic SQLite lab; private static-config/export snapshots with keep-all policy; isolated actual Radarr archive/DB check | Production destination, application startup and independent copy not verified |
-| Administration | Private daily report bundles with semantic deduplication and propagated status | One-shot only; no timer/notifications enabled |
-| Documentation | Observed inventory, sanitized candidate Compose, findings, conditional corrections/rollback, interview notes and four-week study sequence | Runtime root causes and learner reproduction remain open |
-| Delivery | Local branch based on the exact existing draft-PR head | Remote update and merge not performed |
-
-[Verification](docs/verification.md) records commands and test outcomes.
-Running tests on the Pi with generated/mocked data is isolated testing, not
-evidence that live applications are healthy.
+| Health | Capacity/mounts, Docker/optional restart counters, failed units, load/RAM/pressure, thermal, recovery marker and explicit HTTP/DNS probes; readable/JSON states and exits | Missing evidence is UNKNOWN; no automatic repair |
+| Recovery | Disposable SQLite lab; static-config/export snapshots, manifests, hashes and isolated byte restores | Independent destination and app recovery unverified |
+| Private reports | UTC history, semantic deduplication, retained health status and POSIX modes | Manual collection; timer templates not enabled |
+| Documentation | Attributed inventory, diagnostic findings, rollback and learning/portfolio explanations | Owner reproduction and live checks remain open |
+| GitHub | Existing working branch and draft PR #1 preserve Pi contributions | No merge authorized |
 
 ## Use the tools
 
-Python 3.8+ standard library; exercised on Python 3.13.5 ARM64. No dependency
-installation, root access or service mutation is needed.
+Python 3.8+ standard library. Linux/POSIX is required for private config/export and reporting tools; Windows supports the synthetic lab and selected health tests. No tool installs packages or restarts services.
 
 ```sh
-python3 scripts/healthcheck.py --mount /mnt/storage
 python3 scripts/healthcheck.py --help
 python3 -m unittest discover -s tests -v
 python3 scripts/backup_lab.py --json
 ```
 
-Health exit codes: 0 pass; 1 warning/unknown; 2 observed failure or invalid
-arguments. A running container and an HTTP response are different evidence.
-The default report cannot be all-green when backup/probe evidence is missing.
-Configure private endpoints/thresholds after reviewing
-[scripts](scripts/README.md) and [monitoring](monitoring/README.md).
-
-Use [backup instructions](backups/README.md) for the restricted config/export
-tool and [private reporting](docs/private-reporting.md) for report collection.
-Never point generic file-copy tooling at running application databases.
+Run live health checks through the Pi agent or owner terminal after confirming Docker context and private config. Health exits: `0` selected checks pass; `1` warning/unknown; `2` failure or invalid arguments. Container state, Docker health and HTTP response are distinct evidence. See [scripts](scripts/README.md), [monitoring](monitoring/README.md), [backups](backups/README.md) and [private reporting](docs/private-reporting.md).
 
 ## Repository guide
 
 | Location | Purpose |
 | --- | --- |
-| [Inventory](docs/inventory.md) | Observed facts, reports and unknowns |
-| [Compose review copy](docker-compose/README.md) | Sanitized actual declarations; not a deployment instruction |
-| [Findings](docs/review-findings.md) | Symptoms, evidence, likely causes and verification |
-| [Prepared changes](docs/prepared-changes.md) | Access checks and approval-dependent targeted candidates |
-| [Operations](docs/operations.md) | Read-only triage and maintenance |
-| [Networking](networking/README.md) | Generic architecture and connectivity diagnosis |
-| [Backups](backups/README.md) | Consistency, privacy and isolated restore scope |
-| [Monitoring](monitoring/README.md) | Report configuration and uninstalled schedule templates |
-| [Study sequence](docs/learning-exercises.md) | Oct 5–30 weekdays, 4–5 PM America/Los_Angeles |
-| [Portfolio](docs/portfolio.md) | Honest interview explanations and learner evidence gates |
-| [Progress record](docs/progress-2026-09-29.md) | Changed work, results, blockers and next maintenance |
+| [Inventory](docs/inventory.md) and [runtime follow-up](docs/pi-runtime-follow-up.md) | Observations and unknowns |
+| [Compose review copy](docker-compose/README.md) | Historical candidate; no deployment instruction |
+| [Findings](docs/review-findings.md) and [prepared follow-ups](docs/prepared-changes.md) | Diagnostics, prerequisites and rollback |
+| [Operations](docs/operations.md) and [networking](networking/README.md) | Safe triage and access policy |
+| [Verification](docs/verification.md) | Separate Pi/MSI commands, results and limits |
+| [Learning exercises](docs/learning-exercises.md) and [portfolio](docs/portfolio.md) | Reproduction and learner evidence gates |
+| [Backlog](docs/roadmap.md) and [delivery history](docs/access-and-delivery.md) | Remaining work and preserved history |
 
-Credentials, raw logs, private endpoints, databases, reports and personal
-career/vehicle records stay outside public Git. No cloud synchronization is
-assumed. Finances were skipped. Read [AGENTS.md](AGENTS.md) before changes.
+Credentials, raw logs, endpoints, databases, archives, reports and personal career/vehicle records stay outside public Git. Read [AGENTS.md](AGENTS.md) before changes.

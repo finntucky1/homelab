@@ -26,7 +26,8 @@ different things. Follow [script usage](../scripts/README.md).
 3. Query selective status/restarts/health, then bounded recent logs privately.
 4. Test DNS, connection, HTTP and application authentication separately.
 5. For Radarr, verify both the configured download client and completed-path
-   translation; the observed mismatch does not explain every warning.
+   translation; runtime already shares downloads with a current mapping, while
+   the enabled-client error remains unproven. Do not apply the old candidate bind edit.
 6. Prepare one evidence-supported change, verification and rollback.
    Obtain live-change approval, apply once, then test the original symptom.
 

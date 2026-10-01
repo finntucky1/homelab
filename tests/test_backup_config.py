@@ -202,7 +202,9 @@ class ConfigBackupTests(unittest.TestCase):
     def test_change_during_read_detected_from_metadata(self):
         original_stat = Path.stat
         def mutate_before_final_stat(path, *args, **kwargs):
-            if path == self.config:
+            # Python 3.12 implements lstat through stat(follow_symlinks=False).
+            # Mutate at the final content check, after the opened-file read.
+            if path == self.config and kwargs.get("follow_symlinks", True):
                 path.write_bytes(b"changed during read")
             return original_stat(path, *args, **kwargs)
         with patch.object(Path, "stat", new=mutate_before_final_stat), self.assertRaises(backup.BackupError):
@@ -215,6 +217,20 @@ class ConfigBackupTests(unittest.TestCase):
         backup.restore(snapshot, self.recovery / "export1")
         self.assertEqual(list(path.name for path in (self.recovery / "export1").iterdir()), ["native_export"])
         self.assertEqual((self.recovery / "export1" / "native_export").read_bytes(), export.read_bytes())
+
+    def test_manifest_edit_during_restore_prevents_recovery_marker(self):
+        snapshot = self.snapshot()
+        marker = self.root / "proof.json"
+        original = backup.copy_new
+        def edit_then_copy(source, destination, private=False):
+            path = snapshot / "manifest.json"
+            content = path.read_bytes()
+            path.write_bytes(content + b" ")  # Equivalent JSON, different manifest digest.
+            return original(source, destination, private)
+        with patch.object(backup, "copy_new", side_effect=edit_then_copy), self.assertRaises(backup.BackupError):
+            backup.restore(snapshot, self.recovery / "fixture1", marker)
+        self.assertFalse(marker.exists())
+        self.assertEqual((self.recovery / "fixture1" / "settings").read_bytes(), self.config.read_bytes())
 
     def test_sanitized_failures_exclude_os_details_and_paths(self):
         output = io.StringIO()

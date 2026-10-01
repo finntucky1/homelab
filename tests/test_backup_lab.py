@@ -60,12 +60,29 @@ class BackupLabTests(unittest.TestCase):
             self.assertEqual(list(lab.restores.iterdir()), [])
 
     def test_invalid_manifest_fails_cleanly(self):
-        for content in ("not json", "[]", '{"schema": 2, "files": {}}'):
+        for content in ("not json", "[]", '{"schema": 2, "files": {}}', "[" * 16000 + "0" + "]" * 16000):
             with self.subTest(content=content), backup_lab.SyntheticLab() as lab:
                 snapshot = lab.snapshot(1)
                 (snapshot / "manifest.json").write_text(content, encoding="utf-8")
                 with self.assertRaises(backup_lab.LabError):
                     lab.verify(1)
+
+    def test_manifest_boolean_schema_and_invalid_file_records_refused(self):
+        with backup_lab.SyntheticLab() as lab:
+            snapshot = lab.snapshot(1)
+            path = snapshot / "manifest.json"
+            original = json.loads(path.read_text(encoding="utf-8"))
+            invalid = dict(original, schema=True)
+            path.write_text(json.dumps(invalid), encoding="utf-8")
+            with self.assertRaises(backup_lab.LabError):
+                lab.verify(1)
+            for record in ({"bytes": True, "sha256": "0" * 64}, {"bytes": 1, "sha256": "wrong"}, None):
+                invalid = json.loads(json.dumps(original))
+                invalid["files"]["settings.json"] = record
+                path.write_text(json.dumps(invalid), encoding="utf-8")
+                with self.subTest(record=record), self.assertRaises(backup_lab.LabError):
+                    lab.restore(1)
+            self.assertEqual(list(lab.restores.iterdir()), [])
 
     def test_restore_does_not_overwrite_existing_directory(self):
         with backup_lab.SyntheticLab() as lab:

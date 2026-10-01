@@ -1,5 +1,11 @@
 # Dated host and service inventory
 
+## Current runtime addendum — incorporated September 30
+
+The [Pi-agent follow-up](pi-runtime-follow-up.md) supersedes initial runtime access gaps below: Docker server and four running applications observed, Jellyfin healthy, actual UID/GID verified, shared download storage/current mapping confirmed, monitoring containers found, and no failed units in a bounded query. The original candidate is a different Compose source. Full current sources/versions, scrapes/alerts, network policy and complete schedulers remain unknown.
+
+## Historical initial restricted-session baseline
+
 Observed **2026-09-29, America/Los_Angeles**, from a restricted local session
 on the actual Pi. No SSH/router session was used. Serials, private addresses,
 usernames, credentials and raw logs are excluded. Momentary observations do

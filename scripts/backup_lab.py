@@ -39,7 +39,10 @@ def file_record(path):
         raise LabError("Sample validation failed: expected a regular file.")
     if path.stat().st_size > MAX_SAMPLE_BYTES:
         raise LabError("Sample validation failed: a file exceeds the sample size limit.")
-    data = path.read_bytes()
+    with path.open("rb") as handle:
+        data = handle.read(MAX_SAMPLE_BYTES + 1)
+    if len(data) > MAX_SAMPLE_BYTES:
+        raise LabError("Sample validation failed: a file exceeds the sample size limit.")
     return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
 
@@ -111,14 +114,20 @@ class SyntheticLab:
         file_record(target / "manifest.json")
         try:
             manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
-        except (ValueError, UnicodeError):
+        except (ValueError, UnicodeError, RecursionError):
             raise LabError("Sample validation failed: unreadable manifest.") from None
         if (not isinstance(manifest, dict) or set(manifest) != {"schema", "files"}
-                or manifest["schema"] != 1 or not isinstance(manifest["files"], dict)
+                or type(manifest["schema"]) is not int or manifest["schema"] != 1 or not isinstance(manifest["files"], dict)
                 or set(manifest["files"]) != set(DATA_FILES)):
             raise LabError("Sample validation failed: unexpected manifest structure.")
         for name in DATA_FILES:
-            if manifest["files"][name] != file_record(target / name):
+            record = manifest["files"][name]
+            if (not isinstance(record, dict) or set(record) != {"bytes", "sha256"}
+                    or type(record["bytes"]) is not int or not 0 <= record["bytes"] <= MAX_SAMPLE_BYTES
+                    or not isinstance(record["sha256"], str) or len(record["sha256"]) != 64
+                    or any(char not in "0123456789abcdef" for char in record["sha256"])):
+                raise LabError("Sample validation failed: invalid file record.")
+            if record != file_record(target / name):
                 raise LabError("Sample integrity check failed; recreate the disposable snapshot.")
         return manifest
 

@@ -1,4 +1,4 @@
-# Sanitized declaration observed 2026-09-29. Runtime provenance remains unverified.
+# Historical sanitized candidate observed 2026-09-29; runtime uses another source.
 # Review copy: do not deploy a second stack from this file.
 services:
   portainer:

@@ -27,19 +27,24 @@ checks. Missing configured paths/mounts fail; inaccessible observations are
 
 The default report selects capacity, container state/health, failed systemd
 units, available memory, five-minute load per CPU, Linux memory pressure,
-sysfs temperature, Pi power/throttling flags, configured backup evidence and
-explicit HTTP probes. An unavailable source is `UNKNOWN`, including Docker
+sysfs temperature, Pi power/throttling flags, configured backup evidence,
+explicit HTTP and hostname-resolution probes. An unavailable source is `UNKNOWN`, including Docker
 socket denial, systemd bus denial, absent `vcgencmd`, unsupported PSI and a
 missing thermal interface. These do not prove a service or the Pi has failed.
-A report with no configured backup marker or HTTP probes records `UNKNOWN`
+A report with no configured backup marker, HTTP or DNS probes records `UNKNOWN`
 for that coverage rather than silently implying it passed.
 
 Use `--skip-docker`, `--skip-systemd`, `--skip-resources`, `--skip-thermal`,
-`--skip-backup` or `--skip-http` to deliberately exclude a category. **Changed
+`--skip-backup`, `--skip-http` or `--skip-dns` to deliberately exclude a category. **Changed
 from the earlier interface:** `--skip-docker` excludes only Docker. For a
-filesystem-only run, explicitly skip all six categories. A skipped category
+filesystem-only run, explicitly skip all seven categories. A skipped category
 has no result and a green selected report does not establish its health.
 Required Docker names cannot be combined with `--skip-docker`.
+`--check-container-restarts` also requires Docker checks. It queries only
+formatted names and lifetime `RestartCount` values for up to 64 observed
+containers. Zero is PASS for that counter, nonzero WARN; current restarting
+state still FAILs independently. Denied, incomplete or malformed counter data
+is UNKNOWN. A lifetime count does not establish a restart rate or present fault.
 
 | Exit | Interpretation |
 | --- | --- |
@@ -74,6 +79,8 @@ values are rejected before observations. These are the allowed keys:
 | `backup_marker` | Path to a verified static config/export byte-recovery marker; no default |
 | `backup_max_age_hours` | Positive maximum snapshot packaging age; default `48` |
 | `http_probes` | Up to 16 explicit objects described below; default `[]` |
+| `dns_probes` | Up to 16 explicit `{name, host, timeout_seconds}` objects; no default host |
+| `check_container_restarts` | Boolean, default `false`; opt in to selective restart-counter collection |
 
 CLI lists append to configured lists. CLI scalar values override config values.
 Every threshold also has a flag with underscores replaced by hyphens, for
@@ -133,6 +140,22 @@ A connection/TLS failure, deadline or unexpected response status fails the
 explicit reachability observation. An inaccessible/malformed local probe
 worker is `UNKNOWN`. These checks establish one response from this host;
 application login, meaningful data and LAN/VPN-client access still need tests.
+
+## Explicit hostname-resolution probes
+
+Use repeatable `--dns-probe LABEL=HOST` or private config `dns_probes` objects.
+Labels follow the HTTP-label rules; each label must be unique within DNS probes.
+Hosts must be ASCII hostnames, not addresses, URLs, ports or credentials. Timeout
+defaults to 3 seconds; config accepts 0.1–15 seconds. A child receives the host
+via stdin and the parent enforces timeout plus one second. Reports omit the
+hostname, resolved addresses and raw errors. No lookup happens without an
+explicit host. Missing configured probes remain UNKNOWN; `--skip-dns` excludes
+coverage. Operating-system resolution can use hosts files or caches and does
+not prove an external DNS server, route, connection or application response.
+Resolution failure/deadline is FAIL; unavailable/invalid worker data is UNKNOWN.
+
+Invalid direct checker arguments/config produce a generic sanitized diagnostic
+and exit 2; use this guide and `--help` to resolve the private value locally.
 
 ## Backup evidence and firmware signals
 

@@ -1,5 +1,9 @@
 # Prioritized improvement backlog
 
+## Current evidence — September 30
+
+[Runtime follow-up](pi-runtime-follow-up.md) confirms four running apps, shared downloads/current mapping, actual identities, two approved config modes and existing monitoring containers. Full original source, integrations, independent recovery, complete schedulers and alert delivery still require Pi work. The initial snapshot below is historical; unchecked compound gates may have partial evidence.
+
 Current local continuation, 2026-09-29: actual Pi/storage and a four-service
 Compose candidate inspected; existing Radarr archive restored privately and
 SQLite integrity verified; application startup/runtime access still open.
@@ -86,7 +90,8 @@ Completion criteria:
 - [ ] Define thresholds, alert routing, and response steps before scheduling checks.
 - [ ] Record one actual incident with evidence, the change made, and a measured outcome.
 
-Prometheus and Grafana are candidate tools, not currently verified deployments.
+Prometheus, Grafana, node-exporter and cAdvisor containers were found by the Pi
+agent. Their scrape coverage, dashboards and alert behavior remain open.
 
 ## Private administrative automation intake
 

@@ -1,5 +1,7 @@
 # Read-only Pi evidence
 
+Current sanitized Pi facts are in [runtime follow-up](pi-runtime-follow-up.md) and [inventory](inventory.md). The collection commands below are reserved for the Pi agent or owner terminal; the MSI does not repeat live-host work. Earlier wording about workspace access describes the initial MSI collection guide.
+
 The Pi has not been accessed from this workspace. Run these commands in your
 existing Pi terminal as your normal account. They read information; they do not
 install software, change services or grant access. If a command is unavailable

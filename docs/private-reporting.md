@@ -28,15 +28,19 @@ Changed observations create another bundle. This is exact content deduplication,
 not aggregation or a weekly trend calculation. Retention is keep-all until an
 explicit policy is approved.
 
-Errors: missing/writable-by-others/symlink destinations and damaged/incomplete
-existing bundles are refused, never overwritten. A partial failed bundle may
+Errors: missing/writable-by-others/symlink destinations and damaged/incomplete,
+extra-file or malformed existing bundles are refused, never overwritten. Reads
+are bounded and verify private modes and UTC timestamps. A partial failed bundle may
 remain and requires review. Exit 0/1/2 preserves the healthcheck outcome; 3 means
-collection failed. Invalid healthcheck arguments produce its argparse exit 2.
+collection failed. Flags/config that prevent the checker from producing a valid
+report also produce a generic diagnostic and collector exit 3. Direct
+healthcheck invalid arguments still exit 2. CLI help is available on Windows; collection requires
+POSIX ownership/mode support and refuses unsupported hosts.
 Completion requires a valid saved bundle with matching readable/JSON content,
 verified privacy modes and propagated status; tests cover these boundaries.
 
 A weekly administrative routine can review that week's private bundles and
 write a sanitized incident note. There is no automatic weekly run. Drive,
 Gmail and Calendar were not used; no synchronization or personal/vehicle task
-completion is claimed. GitHub reads were verified, while remote writes remain
-pending under the owner's approval rule. Finances were skipped.
+completion is claimed. The Pi implementation was later published in existing draft PR #1; see
+[delivery history](access-and-delivery.md). Finances were skipped.
