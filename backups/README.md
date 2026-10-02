@@ -1,15 +1,21 @@
 # Backups and recovery
 
-**Updated 2026-09-29:** a separate backup destination remains undecided. No new
-backup job or schedule was deployed. The unchanged disposable SQLite lab passed.
-An existing native Radarr archive was separately restored to private temporary
-files, with matching bytes and a SQLite integrity check; the application was not
-started. That dated result and its limits are in [restore-test.md](restore-test.md).
-Native archives beside live data on the same SSD share its disk-failure risk.
+**Updated 2026-09-30:** complete independent backup remains unestablished; no new
+production job or schedule was deployed. All twelve native arr ZIPs passed CRC.
+The newest Radarr archive passed private file/DB restore and isolated same-image
+startup/data read. Integrations/service recovery and full DR remain unvalidated.
+See [live audit](../docs/live-audit-2026-09-30.md) and [restore-test.md](restore-test.md).
+Native archives share their production SSD. A private four-file pre-change
+config snapshot on NVMe is a partial, same-host separate-disk copy only.
 
-`backup_config.py` now provides reviewed tooling for explicit static files or
-completed application exports. It was tested with generated inputs only. Its
-availability does not establish Pi backup coverage or authorize a production run.
+backup_config.py provides manifests/hashes, explicit destinations, private modes,
+keep-all development retention, failure handling and isolated byte recovery.
+It was exercised with generated inputs and a narrow actual static-config snapshot.
+The new [destination preflight](../scripts/backup_destination.py) is always a
+no-write dry run; [usage](../scripts/README.md) states its explicit-source, ext4
+and expected-mount requirements. Run it before an approved operation; no fallback
+destination is allowed. A target outside both production disks is needed for
+all-host disk independence; off-host storage is needed for host-loss protection.
 
 ## Run the disposable exercise
 
@@ -177,9 +183,9 @@ export, application restore, or service stop was performed by this tool.
 | Application | Supported method and scope |
 | --- | --- |
 | Sonarr | Use its completed native ZIP from System → Backup; the [official documentation](https://github.com/Servarr/Wiki/blob/master/sonarr/system.md#backup) describes manual backup and ZIP restore. Import only into an isolated matching-version test instance. |
-| Radarr | Use its completed native ZIP, following the [official backup controls](https://github.com/Servarr/Wiki/blob/master/radarr/system.md#backup). The existing archive's file/DB verification is recorded separately; application startup remains untested. |
+| Radarr | Use its completed native ZIP, following the [official backup controls](https://github.com/Servarr/Wiki/blob/master/radarr/system.md#backup). September 30 file/DB and isolated same-image startup passed; integration/full service recovery remains untested. |
 | Prowlarr | Use its completed native ZIP from the [official Backup controls](https://github.com/Servarr/Wiki/blob/master/prowlarr/system.md#backup); verify isolated application recovery separately. |
-| Jellyfin | The [official guide](https://jellyfin.org/docs/general/administration/backup-and-restore/) says built-in online backup begins with 10.11. For earlier versions the manual method requires stopping the server before copying complete data/configuration. Confirm the installed version first; no stop/copy command is authorized here. |
+| Jellyfin | Observed version 10.11.8. Review its supported built-in backup scope using the [official guide](https://jellyfin.org/docs/general/administration/backup-and-restore/); completed backup/startup recovery remains unverified. For earlier versions manual backup requires stopping the server before copying complete data/configuration. No stop/copy is authorized here. |
 | Portainer | The [native backup download](https://docs.portainer.io/admin/settings/general#back-up-portainer) produces a configuration archive, optionally password-protected. It does not back up managed application volumes. Native restore requires a fresh instance with an empty data volume. |
 | qBittorrent | Its [official settings inventory](https://github.com/qbittorrent/qBittorrent/wiki/Frequently-Asked-Questions#where-does-qbittorrent-save-its-settings) distinguishes preferences and torrent/resume data. A single config file is not complete client recovery. A coordinated stop/profile recovery plan is pending; no raw runtime copy is implemented. |
 | FlareSolverr / WireGuard | Confirm deployment, persistent state, and required recovery scope from actual definitions. VPN secret/key recovery requires a private plan; neither is included in the configuration-only candidate. |

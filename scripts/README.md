@@ -1,5 +1,29 @@
 # Scripts
 
+## Read-only independent-destination preflight
+
+backup_destination.py checks a configurable, existing private destination before
+any approved backup run. It creates/copies/deletes nothing; every invocation is
+a dry run. Linux findmnt and lsblk must already be available. Only reviewed ext4
+filesystems are supported; NAS/remote or multi-device filesystem independence
+requires a separate method. It refuses symlink components, a missing expected
+mount (including root fallback), non-owner/relaxed directory modes, read-only
+mounts, insufficient free space, unknown physical ancestry and any disk shared
+with any explicitly selected production source.
+
+    python3 scripts/backup_destination.py --destination /APPROVED_PRIVATE_ROOT \
+      --expected-mount /VERIFIED_DESTINATION_MOUNT \
+      --production /VERIFIED_PRODUCTION_PATH --min-free-bytes 10737418240
+
+Repeat --production for every selected filesystem/path. Omitting a production
+disk would narrow the result incorrectly. JSON PASS exits 0; refused/unknown
+inspection exits 2 with sanitized diagnostics. The minimum-free example is an
+illustration, not a measured backup-size requirement. PASS does not prove source
+exports, write permissions/ACLs, encryption, durable transfers or host-loss
+protection. No actual write probe is attempted. Review and recheck identity
+immediately before each approved operation; this separate preflight cannot lock
+mount state against changes between commands.
+
 ## Read-only health check
 
 Run `healthcheck.py` on the Linux host being checked with Python 3.8 or newer.

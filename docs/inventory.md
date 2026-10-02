@@ -2,7 +2,7 @@
 
 ## Current runtime addendum — incorporated September 30
 
-The [Pi-agent follow-up](pi-runtime-follow-up.md) supersedes initial runtime access gaps below: Docker server and four running applications observed, Jellyfin healthy, actual UID/GID verified, shared download storage/current mapping confirmed, monitoring containers found, and no failed units in a bounded query. The original candidate is a different Compose source. Full current sources/versions, scrapes/alerts, network policy and complete schedulers remain unknown.
+The direct [September 30 live audit](live-audit-2026-09-30.md) and [selected JSON](evidence/pi-2026-09-30.json) supersede the initial access gaps below. All 12 containers run with zero restarts; current Compose sources/versions/mounts and effective app identities were inspected. Three Prometheus targets scrape successfully. Current/since-boot throttling is 0x0; failed units zero. Isolated Radarr startup passed. Firewall/router/SSH access policy, complete independent backup and full DR remain unknown or unvalidated. The remaining sections are historical September 29 observations.
 
 ## Historical initial restricted-session baseline
 

@@ -1,5 +1,12 @@
 # Private repeatable health collection
 
+September 30 direct Pi validation: manual current wrapper saved mode-0600 files
+in mode-0700 directories and retained health exit 1. Replay of an identical
+captured report with only checked_at changed deduplicated. Adapted service/timer
+verification passed; no installation/activation occurred. Keep-all history has
+no automatic rotation. See [current evidence](live-audit-2026-09-30.md#monitoring-status)
+and [prepared activation/rollback](prepared-changes.md).
+
 Demonstrated repetitive task: the September 29 inspection repeatedly collected
 capacity/health observations and separated private data from shareable evidence.
 The wrapper reuses healthcheck.py instead of starting another monitoring project.

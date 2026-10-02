@@ -1,0 +1,454 @@
+{
+  "x-review-warning": "Sanitized single-file review only. Creation provenance varies by container. Do not deploy or replace the live stack.",
+  "services": {
+    "cadvisor": {
+      "image": "gcr.io/cadvisor/cadvisor:latest",
+      "container_name": "cadvisor",
+      "restart": "unless-stopped",
+      "privileged": true,
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "/",
+          "target": "/rootfs",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "/var/run",
+          "target": "/var/run",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "/sys",
+          "target": "/sys",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "/var/lib/docker",
+          "target": "/var/lib/docker",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "/dev/disk",
+          "target": "/dev/disk",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 8080,
+          "published": "8081",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "flaresolverr": {
+      "image": "ghcr.io/flaresolverr/flaresolverr:latest",
+      "container_name": "flaresolverr",
+      "restart": "unless-stopped",
+      "environment": {
+        "LOG_LEVEL": "${LOG_LEVEL:?set privately for review}",
+        "TZ": "America/Los_Angeles"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/flaresolverr",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 8191,
+          "published": "8191",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "grafana": {
+      "image": "grafana/grafana-oss:latest",
+      "container_name": "grafana",
+      "restart": "unless-stopped",
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/grafana",
+          "target": "/var/lib/grafana",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 3000,
+          "published": "3000",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "jellyfin": {
+      "image": "jellyfin/jellyfin:latest",
+      "container_name": "jellyfin",
+      "restart": "unless-stopped",
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${APP_CONFIG_ROOT:?set APP_CONFIG_ROOT}/jellyfin",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/media",
+          "target": "/media",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/jellyfin-cache",
+          "target": "/cache",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 8096,
+          "published": "8096",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "node-exporter": {
+      "image": "prom/node-exporter:latest",
+      "container_name": "node-exporter",
+      "restart": "unless-stopped",
+      "command": [
+        "--path.rootfs=/host"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "/",
+          "target": "/host",
+          "read_only": true,
+          "bind": {
+            "propagation": "rslave",
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 9100,
+          "published": "9100",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "portainer": {
+      "image": "portainer/portainer-ce:latest",
+      "container_name": "portainer",
+      "restart": "unless-stopped",
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/portainer",
+          "target": "/data",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "/var/run/docker.sock",
+          "target": "/var/run/docker.sock",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 9000,
+          "published": "9000",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "prometheus": {
+      "image": "prom/prometheus:latest",
+      "container_name": "prometheus",
+      "restart": "unless-stopped",
+      "command": [
+        "--config.file=/etc/prometheus/prometheus.yml",
+        "--storage.tsdb.path=/prometheus",
+        "--storage.tsdb.retention.time=30d"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/prometheus/prometheus.yml",
+          "target": "/etc/prometheus/prometheus.yml",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/prometheus",
+          "target": "/prometheus",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 9090,
+          "published": "9090",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "prowlarr": {
+      "image": "lscr.io/linuxserver/prowlarr:latest",
+      "container_name": "prowlarr",
+      "restart": "unless-stopped",
+      "environment": {
+        "PGID": "1000",
+        "PUID": "1000",
+        "TZ": "America/Los_Angeles"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/prowlarr",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 9696,
+          "published": "9696",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "qbittorrent": {
+      "image": "lscr.io/linuxserver/qbittorrent:latest",
+      "container_name": "qbittorrent",
+      "restart": "unless-stopped",
+      "environment": {
+        "PGID": "1000",
+        "PUID": "1000",
+        "TZ": "America/Los_Angeles",
+        "WEBUI_PORT": "8080"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/qbit",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/torrents",
+          "target": "/data/downloads",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 8080,
+          "published": "8080",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "target": 6881,
+          "published": "6881",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "target": 6881,
+          "published": "6881",
+          "protocol": "udp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "radarr": {
+      "image": "lscr.io/linuxserver/radarr:latest",
+      "container_name": "radarr",
+      "restart": "unless-stopped",
+      "environment": {
+        "PGID": "1000",
+        "PUID": "1000",
+        "TZ": "America/Los_Angeles"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/radarr",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/torrents",
+          "target": "/downloads",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/media",
+          "target": "/media",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 7878,
+          "published": "7878",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    },
+    "sonarr": {
+      "image": "lscr.io/linuxserver/sonarr:latest",
+      "container_name": "sonarr",
+      "restart": "unless-stopped",
+      "environment": {
+        "PGID": "1000",
+        "PUID": "1000",
+        "TZ": "America/Los_Angeles"
+      },
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/docker/sonarr",
+          "target": "/config",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/torrents",
+          "target": "/downloads",
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "bind",
+          "source": "${STORAGE_ROOT:?set STORAGE_ROOT}/media",
+          "target": "/media",
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ],
+      "ports": [
+        {
+          "mode": "ingress",
+          "target": 8989,
+          "published": "8989",
+          "protocol": "tcp"
+        }
+      ],
+      "networks": {
+        "default": null
+      }
+    }
+  },
+  "networks": {
+    "default": {
+      "name": "compose_default"
+    }
+  }
+}

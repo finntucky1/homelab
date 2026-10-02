@@ -2,7 +2,7 @@
 
 ## Current evidence — September 30
 
-[Runtime follow-up](pi-runtime-follow-up.md) confirms four running apps, shared downloads/current mapping, actual identities, two approved config modes and existing monitoring containers. Full original source, integrations, independent recovery, complete schedulers and alert delivery still require Pi work. The initial snapshot below is historical; unchecked compound gates may have partial evidence.
+The direct [live audit](live-audit-2026-09-30.md) completes the current all-container inventory, source comparison, three-target scrape verification and isolated Radarr startup. It demonstrates a configured Radarr endpoint timeout and lack of accepted qBittorrent login; a reset is prepared for approval. Full independent backup, active client/path verification, complete scheduler/access policy and alert delivery remain open. The backlog below is historical; unchecked compound gates may have completed subchecks and are not a current inventory.
 
 Current local continuation, 2026-09-29: actual Pi/storage and a four-service
 Compose candidate inspected; existing Radarr archive restored privately and

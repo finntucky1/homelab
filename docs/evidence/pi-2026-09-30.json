@@ -1,0 +1,1669 @@
+{
+  "schema": 1,
+  "owner_date": "2026-09-30",
+  "timezone": "America/Los_Angeles",
+  "classification": "OBSERVED on actual Pi; unknowns explicit; point measurements",
+  "baseline": {
+    "owner_date": "2026-09-30",
+    "timezone": "America/Los_Angeles",
+    "observed_utc": "2026-10-01T00:14:51.362740+00:00",
+    "hostname": "withheld",
+    "model": "Raspberry Pi 5 Model B Rev 1.1",
+    "os": {
+      "name": "Debian GNU/Linux",
+      "version": "13.6"
+    },
+    "kernel": "6.18.39+rpt-rpi-2712",
+    "architecture": "aarch64",
+    "python": "3.13.5",
+    "cpu_count": 4,
+    "uptime_seconds": 2407498.76,
+    "load_averages": [
+      2.12744140625,
+      2.263671875,
+      2.08740234375
+    ],
+    "memory_kib": {
+      "MemTotal": 16603520,
+      "MemAvailable": 10390272,
+      "SwapTotal": 2097136,
+      "SwapFree": 2097136
+    },
+    "temperature_c": 57.85,
+    "blockdevices": {
+      "blockdevices": [
+        {
+          "name": "loop0",
+          "type": "loop",
+          "size": 2147483648,
+          "fstype": "swap",
+          "mountpoints": [],
+          "model": null
+        },
+        {
+          "name": "sda",
+          "type": "disk",
+          "size": 4000787030016,
+          "fstype": null,
+          "mountpoints": [],
+          "model": "CT4000X10SSD9",
+          "children": [
+            {
+              "name": "sda1",
+              "type": "part",
+              "size": 4000785104896,
+              "fstype": "ext4",
+              "mountpoints": [
+                "/mnt/storage"
+              ],
+              "model": null
+            }
+          ]
+        },
+        {
+          "name": "zram0",
+          "type": "disk",
+          "size": 2147483648,
+          "fstype": "swap",
+          "mountpoints": [
+            "[SWAP]"
+          ],
+          "model": null
+        },
+        {
+          "name": "nvme0n1",
+          "type": "disk",
+          "size": 1000204886016,
+          "fstype": null,
+          "mountpoints": [],
+          "model": "Samsung SSD 990 EVO Plus 1TB",
+          "children": [
+            {
+              "name": "nvme0n1p1",
+              "type": "part",
+              "size": 536870912,
+              "fstype": "vfat",
+              "mountpoints": [
+                "/boot/firmware"
+              ],
+              "model": null
+            },
+            {
+              "name": "nvme0n1p2",
+              "type": "part",
+              "size": 999659626496,
+              "fstype": "ext4",
+              "mountpoints": [
+                "/"
+              ],
+              "model": null
+            }
+          ]
+        }
+      ]
+    },
+    "root_mount": {
+      "filesystems": [
+        {
+          "source": "/dev/nvme0n1p2",
+          "target": "/",
+          "fstype": "ext4"
+        }
+      ]
+    },
+    "data_mount": {
+      "filesystems": [
+        {
+          "source": "/dev/sda1",
+          "target": "/mnt/storage",
+          "fstype": "ext4"
+        }
+      ]
+    },
+    "throttle": "throttled=0x0",
+    "services": {
+      "docker.service": "active",
+      "ssh.service": "active",
+      "NetworkManager.service": "active"
+    },
+    "capacities": {
+      "/": {
+        "bytes": 983882338304,
+        "available_bytes": 922577563648,
+        "free_bytes": 962638790656
+      },
+      "/mnt/storage": {
+        "bytes": 3936818806784,
+        "available_bytes": 2643229097984,
+        "free_bytes": 2843285127168
+      }
+    }
+  },
+  "docker_daemon": {
+    "ServerVersion": "26.1.5+dfsg1",
+    "Architecture": "aarch64",
+    "OSType": "linux",
+    "DockerRootDir": "/var/lib/docker",
+    "LoggingDriver": "json-file",
+    "LiveRestoreEnabled": false,
+    "SecurityOptions": [
+      "name=seccomp,profile=builtin",
+      "name=cgroupns"
+    ],
+    "Warnings": [
+      "WARNING: No memory limit support",
+      "WARNING: No swap limit support"
+    ]
+  },
+  "containers": [
+    {
+      "name": "npm",
+      "image": "jc21/nginx-proxy-manager:latest",
+      "image_id": "sha256:93001c53cb01a3871fd56107c8693d1530720b85fe5e59823703e8cf96631b6e",
+      "image_arch": "arm64",
+      "image_created": "2026-02-17T05:44:39.276811869Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:48.594272562Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "bridge"
+      ],
+      "ports": [
+        {
+          "container_port": "443/tcp",
+          "host_port": "443",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "443/tcp",
+          "host_port": "443",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "80/tcp",
+          "host_port": "80",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "80/tcp",
+          "host_port": "80",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "81/tcp",
+          "host_port": "81",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "81/tcp",
+          "host_port": "81",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/home/<owner>/npm/data",
+          "destination": "/data",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/<owner>/npm/letsencrypt",
+          "destination": "/etc/letsencrypt",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {},
+      "application_identity": [
+        {
+          "euid": "0",
+          "egid": "0",
+          "command": "node"
+        }
+      ]
+    },
+    {
+      "name": "grafana",
+      "image": "grafana/grafana-oss:latest",
+      "image_id": "sha256:f8a787bf16008e4416d00bb8194957d63df85cb6a2e6a190085b53dcac8fa724",
+      "image_arch": "arm64",
+      "image_created": "2026-05-12T07:59:04.687308194Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.973112154Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "3000/tcp",
+          "host_port": "3000",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "3000/tcp",
+          "host_port": "3000",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "472",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/grafana",
+          "destination": "/var/lib/grafana",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "grafana",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "472",
+          "egid": "0",
+          "command": "grafana"
+        }
+      ]
+    },
+    {
+      "name": "node-exporter",
+      "image": "prom/node-exporter:latest",
+      "image_id": "sha256:5635e459687a21bee059ade06ae4170ebfae5330e2a224947254ab1a2860c22c",
+      "image_arch": "arm64",
+      "image_created": "2026-04-07T15:51:28.902603868Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.465356284Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "9100/tcp",
+          "host_port": "9100",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "9100/tcp",
+          "host_port": "9100",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "nobody",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/",
+          "destination": "/host",
+          "read_write": false
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "node-exporter",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "65534",
+          "egid": "65534",
+          "command": "node_exporter"
+        }
+      ]
+    },
+    {
+      "name": "cadvisor",
+      "image": "gcr.io/cadvisor/cadvisor:latest",
+      "image_id": "sha256:fc364f3179732268d12319146dede9bf14eddb9ed5f4794cd7fa7b32fc1e2274",
+      "image_arch": "arm64",
+      "image_created": "2025-12-25T00:24:02.494547728Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:48.809668636Z",
+      "restart_count": 0,
+      "health": "healthy",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "8080/tcp",
+          "host_port": "8081",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8080/tcp",
+          "host_port": "8081",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": true,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/dev/disk",
+          "destination": "/dev/disk",
+          "read_write": false
+        },
+        {
+          "type": "bind",
+          "source": "/",
+          "destination": "/rootfs",
+          "read_write": false
+        },
+        {
+          "type": "bind",
+          "source": "/sys",
+          "destination": "/sys",
+          "read_write": false
+        },
+        {
+          "type": "bind",
+          "source": "/var/lib/docker",
+          "destination": "/var/lib/docker",
+          "read_write": false
+        },
+        {
+          "type": "bind",
+          "source": "/var/run",
+          "destination": "/var/run",
+          "read_write": false
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "cadvisor",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "0",
+          "egid": "0",
+          "command": "cadvisor"
+        }
+      ]
+    },
+    {
+      "name": "prometheus",
+      "image": "prom/prometheus:latest",
+      "image_id": "sha256:baebf434ef86486885d9f107ce3b6fc2ca9f2a63ab79600bd96425fde7580ab1",
+      "image_arch": "arm64",
+      "image_created": "2026-04-27T15:31:04.619674233Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.773057265Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "9090/tcp",
+          "host_port": "9090",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "9090/tcp",
+          "host_port": "9090",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "nobody",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/prometheus/prometheus.yml",
+          "destination": "/etc/prometheus/prometheus.yml",
+          "read_write": false
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/prometheus",
+          "destination": "/prometheus",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "prometheus",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "65534",
+          "egid": "65534",
+          "command": "prometheus"
+        }
+      ]
+    },
+    {
+      "name": "jellyfin",
+      "image": "jellyfin/jellyfin:latest",
+      "image_id": "sha256:675fcd9f235458e055908c212e5336c14ca1cd6a9821b09c47cbfb90aacaf253",
+      "image_arch": "arm64",
+      "image_created": "2026-04-05T19:40:30.197663419Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.539748562Z",
+      "restart_count": 0,
+      "health": "healthy",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "8096/tcp",
+          "host_port": "8096",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8096/tcp",
+          "host_port": "8096",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/jellyfin-cache",
+          "destination": "/cache",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/srv/omnieye/config/jellyfin",
+          "destination": "/config",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/media",
+          "destination": "/media",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "jellyfin",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "0",
+          "egid": "0",
+          "command": "jellyfin"
+        }
+      ]
+    },
+    {
+      "name": "portainer",
+      "image": "portainer/portainer-ce:latest",
+      "image_id": "sha256:115a62299b7f4d6aad3c7a07e850e44123bffcb1adaa68aeae9a958804737e24",
+      "image_arch": "arm64",
+      "image_created": "2026-03-19T21:55:47.418698748Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:48.479974359Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "9000/tcp",
+          "host_port": "9000",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "9000/tcp",
+          "host_port": "9000",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": true,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/var/run/docker.sock",
+          "destination": "/var/run/docker.sock",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/portainer",
+          "destination": "/data",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "portainer",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "0",
+          "egid": "0",
+          "command": "portainer"
+        }
+      ]
+    },
+    {
+      "name": "qbittorrent",
+      "image": "lscr.io/linuxserver/qbittorrent:latest",
+      "image_id": "sha256:621de1076a811d84ed93175bdcb274fe7276408441aaa287471caedf247eb33a",
+      "image_arch": "arm64",
+      "image_created": "2026-04-26T08:12:49.099657887Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:57:57.568221361Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "6881/tcp",
+          "host_port": "6881",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "6881/tcp",
+          "host_port": "6881",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "6881/udp",
+          "host_port": "6881",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "6881/udp",
+          "host_port": "6881",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8080/tcp",
+          "host_port": "8080",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8080/tcp",
+          "host_port": "8080",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/qbit",
+          "destination": "/config",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/torrents",
+          "destination": "/data/downloads",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "qbittorrent",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "1000",
+          "egid": "1000",
+          "command": "qbittorrent-nox"
+        }
+      ]
+    },
+    {
+      "name": "radarr",
+      "image": "lscr.io/linuxserver/radarr:latest",
+      "image_id": "sha256:01e06246212e453db48b15194b21293f50baca84cda665d689d940e2744ead76",
+      "image_arch": "arm64",
+      "image_created": "2026-04-19T17:29:04.863748371Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.30437234Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "7878/tcp",
+          "host_port": "7878",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "7878/tcp",
+          "host_port": "7878",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/media",
+          "destination": "/media",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/radarr",
+          "destination": "/config",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/torrents",
+          "destination": "/downloads",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "radarr",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "1000",
+          "egid": "1000",
+          "command": "Radarr"
+        }
+      ]
+    },
+    {
+      "name": "sonarr",
+      "image": "lscr.io/linuxserver/sonarr:latest",
+      "image_id": "sha256:23b1607726a74697be43b71fe3f60f322e66806d8a05b14e9ed95a3b6fec8879",
+      "image_arch": "arm64",
+      "image_created": "2026-03-19T15:13:07.223545772Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.101453266Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "8989/tcp",
+          "host_port": "8989",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8989/tcp",
+          "host_port": "8989",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/sonarr",
+          "destination": "/config",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/torrents",
+          "destination": "/downloads",
+          "read_write": true
+        },
+        {
+          "type": "bind",
+          "source": "/mnt/storage/media",
+          "destination": "/media",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "sonarr",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "1000",
+          "egid": "1000",
+          "command": "Sonarr"
+        }
+      ]
+    },
+    {
+      "name": "prowlarr",
+      "image": "lscr.io/linuxserver/prowlarr:latest",
+      "image_id": "sha256:e7c0b046bea84004f87c588f233cac8610ee345e5afecbc0636a5a8099e0a5c2",
+      "image_arch": "arm64",
+      "image_created": "2026-04-04T19:05:58.465951527Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:49.40837971Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "9696/tcp",
+          "host_port": "9696",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "9696/tcp",
+          "host_port": "9696",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/prowlarr",
+          "destination": "/config",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "prowlarr",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "1000",
+          "egid": "1000",
+          "command": "Prowlarr"
+        }
+      ]
+    },
+    {
+      "name": "flaresolverr",
+      "image": "ghcr.io/flaresolverr/flaresolverr:latest",
+      "image_id": "sha256:9a74115c9fe2b44672bc851ffc0ca80c1d4829468c17182d299c77eb6b348cc7",
+      "image_arch": "arm64",
+      "image_created": "2025-11-29T02:49:05.423754677Z",
+      "state": "running",
+      "started_utc": "2026-10-01T00:47:48.892231414Z",
+      "restart_count": 0,
+      "health": "undeclared",
+      "network_names": [
+        "compose_default"
+      ],
+      "ports": [
+        {
+          "container_port": "8191/tcp",
+          "host_port": "8191",
+          "bind_scope": "all interfaces"
+        },
+        {
+          "container_port": "8191/tcp",
+          "host_port": "8191",
+          "bind_scope": "all interfaces"
+        }
+      ],
+      "configured_user": "flaresolverr",
+      "privileged": false,
+      "read_only_rootfs": false,
+      "cap_add": null,
+      "restart_policy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "docker_socket_mounted": false,
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/mnt/storage/docker/flaresolverr",
+          "destination": "/config",
+          "read_write": true
+        }
+      ],
+      "compose_creation_labels": {
+        "project": "compose",
+        "project.config_files": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+        "project.working_dir": "/mnt/storage/omnieye/compose",
+        "service": "flaresolverr",
+        "version": "2.26.1"
+      },
+      "application_identity": [
+        {
+          "euid": "1000",
+          "egid": "1000",
+          "command": "python"
+        }
+      ]
+    }
+  ],
+  "monitoring": {
+    "prometheus_ready": {
+      "http_status": 200,
+      "ready_text_matches": true
+    },
+    "prometheus_targets": {
+      "http_status": 200,
+      "targets": [
+        {
+          "job": "cadvisor",
+          "health": "up",
+          "scrape_seconds": null,
+          "last_scrape": "2026-10-01T00:00:20.32046288Z",
+          "has_error": false
+        },
+        {
+          "job": "node-exporter",
+          "health": "up",
+          "scrape_seconds": null,
+          "last_scrape": "2026-10-01T00:00:16.932538401Z",
+          "has_error": false
+        },
+        {
+          "job": "prometheus",
+          "health": "up",
+          "scrape_seconds": null,
+          "last_scrape": "2026-10-01T00:00:19.981445603Z",
+          "has_error": false
+        }
+      ]
+    },
+    "grafana_health": {
+      "http_status": 200,
+      "database": "ok",
+      "version": "13.0.1+security-01"
+    },
+    "node_exporter_metrics": {
+      "http_status": 200,
+      "sample_prefix_present": {
+        "node_uname_info": true,
+        "node_memory_MemAvailable_bytes": true,
+        "node_filesystem_avail_bytes": true
+      },
+      "bounded_bytes": 83760
+    },
+    "prometheus_up_samples": [
+      {
+        "job": "prometheus",
+        "value": "1"
+      },
+      {
+        "job": "cadvisor",
+        "value": "1"
+      },
+      {
+        "job": "node-exporter",
+        "value": "1"
+      }
+    ],
+    "metric_coverage_counts": {
+      "count(container_memory_usage_bytes{job=\"cadvisor\"})": [
+        "87"
+      ],
+      "count(node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/mnt/storage\"})": [
+        "1"
+      ]
+    }
+  },
+  "compose_comparison": [
+    {
+      "container": "grafana",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "node-exporter",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "cadvisor",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "prometheus",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "jellyfin",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "portainer",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "qbittorrent",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "radarr",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "sonarr",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "prowlarr",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    },
+    {
+      "container": "flaresolverr",
+      "source_file": "/mnt/storage/omnieye/compose/docker-compose.clean-draft.yml",
+      "image_reference_matches": true,
+      "mount_declarations_match": true,
+      "restart_policy_matches": true
+    }
+  ],
+  "native_backup_policy": {
+    "radarr": {
+      "backupFolder": "Backups",
+      "backupInterval": 7,
+      "backupRetention": 28
+    },
+    "sonarr": {
+      "backupFolder": "Backups",
+      "backupInterval": 7,
+      "backupRetention": 28
+    },
+    "prowlarr": {
+      "backupFolder": "Backups",
+      "backupInterval": 7,
+      "backupRetention": 28
+    }
+  },
+  "archive_integrity": {
+    "observed_utc": "2026-10-01T06:00:02.895002+00:00",
+    "archives": [
+      {
+        "service": "radarr",
+        "name": "radarr_backup_v6.1.1.10360_2026.09.28_20.25.46.zip",
+        "bytes": 3701463,
+        "modified_utc": "2026-09-29T03:25:48.292359+00:00",
+        "sha256": "64707f5196a258906cf24c2b57b1b1f7579d3ca886d1c1aa12b0a4ee30b4f157",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "radarr",
+        "name": "radarr_backup_v6.1.1.10360_2026.09.14_20.25.25.zip",
+        "bytes": 3696666,
+        "modified_utc": "2026-09-15T03:25:27.386141+00:00",
+        "sha256": "f0406e62d57960ba6898c7b07cfa406a7025b7d5219e57e0aa803395294c5b49",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "radarr",
+        "name": "radarr_backup_v6.1.1.10360_2026.09.21_20.25.35.zip",
+        "bytes": 3712279,
+        "modified_utc": "2026-09-22T03:25:36.952922+00:00",
+        "sha256": "321f9533551789aec05576b39acc2365c11a0c62df921e59d42dfe9ea6f6b8a8",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "radarr",
+        "name": "radarr_backup_v6.1.1.10360_2026.09.07_20.25.14.zip",
+        "bytes": 3693662,
+        "modified_utc": "2026-09-08T03:25:16.622326+00:00",
+        "sha256": "f8b4a04b8ff5d4d9751f0e2535c8ab2d84b4d590aa85a11616516a2c74021f71",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "sonarr",
+        "name": "sonarr_backup_v4.0.17.2952_2026.09.28_20.25.46.zip",
+        "bytes": 693768,
+        "modified_utc": "2026-09-29T03:25:47.256378+00:00",
+        "sha256": "5541b5ac7b024dfec6405d24423d1bb7a4a555d76eafd78bb67f7590698300c3",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "sonarr",
+        "name": "sonarr_backup_v4.0.17.2952_2026.09.21_20.25.35.zip",
+        "bytes": 694567,
+        "modified_utc": "2026-09-22T03:25:35.924925+00:00",
+        "sha256": "cbb6e6d95b01b964d431787e4562da6c6dd823df6181cb2ed2eae72839717eea",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "sonarr",
+        "name": "sonarr_backup_v4.0.17.2952_2026.09.14_20.25.25.zip",
+        "bytes": 694445,
+        "modified_utc": "2026-09-15T03:25:26.322143+00:00",
+        "sha256": "f2baa6c13608ea7e5833ed6835b9144f1734ffa67546210c59adbe764e1a9a91",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "sonarr",
+        "name": "sonarr_backup_v4.0.17.2952_2026.09.07_20.25.15.zip",
+        "bytes": 690815,
+        "modified_utc": "2026-09-08T03:25:15.946328+00:00",
+        "sha256": "df9c5c5ea424642c407bb096167700c1f976babf2651ab0218513a9f6e81206d",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "prowlarr",
+        "name": "prowlarr_backup_v2.3.5.5327_2026.09.14_20.25.55.zip",
+        "bytes": 22221,
+        "modified_utc": "2026-09-15T03:25:55.462103+00:00",
+        "sha256": "71b1422154a4be41767bd2ddb1ee5c6ee185241d6f5479cd714c0265a839bf15",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "prowlarr",
+        "name": "prowlarr_backup_v2.3.5.5327_2026.09.07_20.25.36.zip",
+        "bytes": 21860,
+        "modified_utc": "2026-09-08T03:25:37.150244+00:00",
+        "sha256": "9f03992804482ee8e7fabad4e167c530ce3d8729e00294e8befe14ebad691e2e",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "prowlarr",
+        "name": "prowlarr_backup_v2.3.5.5327_2026.09.28_20.26.36.zip",
+        "bytes": 22324,
+        "modified_utc": "2026-09-29T03:26:36.639513+00:00",
+        "sha256": "d9f4e673ab9daac29ee6b44cca7b649f41140183f6122406f29fc7b59ba6c693",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      },
+      {
+        "service": "prowlarr",
+        "name": "prowlarr_backup_v2.3.5.5327_2026.09.21_20.26.14.zip",
+        "bytes": 21950,
+        "modified_utc": "2026-09-22T03:26:14.748795+00:00",
+        "sha256": "0558c5105e27f3810877cfbbe76ce626095a6786226a54831e8b4e316cf542a0",
+        "zip_crc": "PASS",
+        "member_count": 3,
+        "same_physical_disk_as_production": true,
+        "mode": "0o644"
+      }
+    ],
+    "scope": "Read-only SHA-256 and ZIP CRC; only latest Radarr tested through application startup"
+  },
+  "recovery": {
+    "observed_utc": "2026-10-01T00:10:52.296742+00:00",
+    "file_restore": "VALIDATED",
+    "database_restore": "VALIDATED",
+    "application_startup": "VALIDATED",
+    "service_recovery": "NOT VALIDATED",
+    "full_dr": "NOT VALIDATED",
+    "production_writes_mounted": false,
+    "ports_published": false,
+    "network": "none",
+    "memory_limit_enforced": false,
+    "memory_limit_note": "Docker daemon reports no kernel memory-limit support; startup is time-bounded and host had over 10GB available",
+    "earlier_attempt_note": "Temporary local log driver required max-file=2 for default compression; only the isolated test setting was corrected",
+    "archive_sha256": "64707f5196a258906cf24c2b57b1b1f7579d3ca886d1c1aa12b0a4ee30b4f157",
+    "archive_bytes": 3701463,
+    "zip_crc": "PASS",
+    "restored_file_count": 3,
+    "database_tables": 42,
+    "isolation_preflight": "PASS",
+    "image_id": "sha256:01e06246212e453db48b15194b21293f50baca84cda665d689d940e2744ead76",
+    "startup_seconds": 4.93,
+    "version": "6.1.1.10360",
+    "restored_api_key_accepted": true,
+    "restored_movie_count_matches": true,
+    "api_database_read": "PASS",
+    "isolated_stop_exit": 0,
+    "isolated_remove_exit": 0,
+    "production_runtime_unchanged": true,
+    "source_archive_unchanged": true,
+    "temporary_restore_removed": true
+  },
+  "destination_preflight": [
+    {
+      "selected_sources": 1,
+      "exit": 0,
+      "report": {
+        "schema": 1,
+        "status": "PASS",
+        "mode": "dry-run",
+        "physical_device_separation": "OBSERVED for the explicitly selected production paths",
+        "source_count": 1,
+        "destination_filesystem": "ext4",
+        "destination_free_bytes": 921246875648,
+        "writes_performed": false,
+        "limits": "Same-host storage does not cover host loss. This does not validate exports, retention, or recovery."
+      }
+    },
+    {
+      "selected_sources": 2,
+      "exit": 2,
+      "report": {
+        "schema": 1,
+        "status": "FAIL",
+        "mode": "dry-run",
+        "reason": "Destination shares a physical disk with a selected production path.",
+        "writes_performed": false
+      }
+    }
+  ],
+  "static_config_snapshot": {
+    "exit": 0,
+    "result": {
+      "action": "create",
+      "exit_code": 0,
+      "file_count": 4,
+      "retention": "keep-all",
+      "scope": "static config/export bytes only; application recovery untested",
+      "status": "PASS",
+      "total_bytes": 2329
+    },
+    "scope": "Private one-time before-change static config snapshot on NVMe; not scheduled or independent coverage of all host data",
+    "scope_note": "Initial four static configs only; later qBittorrent profile supersedes its earlier snapshot for reset rollback"
+  },
+  "radarr_layers": {
+    "enabled_clients": 1,
+    "health_categories": [
+      {
+        "source": "IndexerRssCheck",
+        "severity": "warning",
+        "categories": [
+          "unavailable",
+          "indexer"
+        ]
+      },
+      {
+        "source": "DownloadClientStatusCheck",
+        "severity": "error",
+        "categories": [
+          "unavailable",
+          "download"
+        ]
+      },
+      {
+        "source": "DownloadClientCheck",
+        "severity": "error",
+        "categories": [
+          "unable to communicate"
+        ]
+      },
+      {
+        "source": "UpdateCheck",
+        "severity": "warning",
+        "categories": [
+          "update"
+        ]
+      },
+      {
+        "source": "IndexerSearchCheck",
+        "severity": "warning",
+        "categories": [
+          "unavailable",
+          "indexer"
+        ]
+      },
+      {
+        "source": "IndexerLongTermStatusCheck",
+        "severity": "error",
+        "categories": [
+          "unavailable",
+          "indexer"
+        ]
+      }
+    ],
+    "client_checks": [
+      {
+        "host_equals_service_dns": false,
+        "host_is_current_container_ip": false,
+        "port": 8080,
+        "ssl": false,
+        "url_base_present": false,
+        "username_present": true,
+        "password_present": true,
+        "password_is_mask_placeholder": true,
+        "category_present": true,
+        "configured": {
+          "curl_exit": 28,
+          "http_status": "000",
+          "tcp_http_reached": false,
+          "error_category": "timeout"
+        },
+        "service_dns": {
+          "curl_exit": 0,
+          "http_status": "403",
+          "tcp_http_reached": true,
+          "error_category": "none"
+        }
+      }
+    ],
+    "radarr_recent_log_categories": {
+      "auth_failure": 0,
+      "connection_refused": 0,
+      "client_unavailable": 0,
+      "banned": 0,
+      "path_issue": 0,
+      "indexer_error": 0
+    },
+    "qbittorrent_recent_log_categories": {
+      "auth_failure": 0,
+      "connection_refused": 0,
+      "client_unavailable": 0,
+      "banned": 0,
+      "path_issue": 0,
+      "indexer_error": 0
+    }
+  },
+  "qbit_saved_config": {
+    "stored_radarr_password_is_mask_placeholder": false,
+    "configured_usernames_match": false,
+    "qbit_pbkdf2_password_configured": false,
+    "qbit_session_ban_configured": {
+      "max_auth_failures": null,
+      "ban_duration": null
+    },
+    "qbit_auth_controls": {
+      "LocalHostAuth": null,
+      "AuthSubnetWhitelistEnabled": null,
+      "CSRFProtection": null,
+      "HostHeaderValidation": null,
+      "Port": null,
+      "HTTPS\\Enabled": null
+    },
+    "save_paths": {
+      "Session\\DefaultSavePath": "/downloads/",
+      "Session\\TempPath": "/downloads/incomplete/",
+      "Downloads\\SavePath": "/downloads/",
+      "Downloads\\TempPath": "/downloads/incomplete/"
+    },
+    "modes": {
+      "/mnt/storage/docker/qbit/qBittorrent/qBittorrent.conf": "0o600",
+      "/mnt/storage/docker/radarr/config.xml": "0o600"
+    }
+  },
+  "qbit_binary_version": "5.1.4",
+  "authentication": "Initial snapshot probes established no session from stored Radarr credentials or then-latest startup credential; final matching Origin/Referer probes used; values withheld. Current authentication/login availability UNKNOWN after changed profile.",
+  "reset": {
+    "prepared": true,
+    "applied": false,
+    "target": "/mnt/storage/docker/qbit/qBittorrent/qBittorrent.conf",
+    "username_after": "admin",
+    "password": "Generated and stored only in owner-only private approval directory; not printed",
+    "algorithm": "PBKDF2-HMAC-SHA512, 100000 iterations, 16-byte salt, 64-byte result, Qt ByteArray format",
+    "changes": [
+      "Add or replace Preferences WebUI\\Username",
+      "Add or replace Preferences WebUI\\Password_PBKDF2"
+    ],
+    "backup_private": true,
+    "prepared_files_mode": "0600",
+    "requires": [
+      "explicit owner approval",
+      "recheck exact source content and ownership before execution",
+      "stop only qbittorrent before writing its persistent config",
+      "start same existing container; no recreate or image update"
+    ],
+    "rollback": "Stop qbittorrent, restore owner-only qbit-before.conf, start same container; prior lack of login may return",
+    "expected_impact": "Temporary pause of qBittorrent transfers and invalidation of existing WebUI sessions; new credentials for consumers",
+    "offline_validation": {
+      "only_two_credential_fields_changed": true,
+      "derived_hash_matches_private_password": true,
+      "current_live_config_matches_saved_before": true,
+      "applied": false
+    },
+    "preimage_refreshed_after_live_file_changed": true,
+    "recheck_required_immediately_before_execution": true,
+    "before_fields_now_present": true,
+    "state_note": "Profile changed while audit ran; latest private preimage preserved. Reset remains unapplied and requires fresh check/approval.",
+    "execution_condition": "Confirm reset is still needed after observed unknown-origin restart/profile change, then explicit approval and immediate source/identity checks"
+  },
+  "health": {
+    "checked_at": "2026-10-01T06:26:04Z",
+    "exit_code": 1,
+    "PASS": 34,
+    "UNKNOWN": 12,
+    "unknown": [
+      "container:npm",
+      "container:grafana",
+      "container:node-exporter",
+      "container:prometheus",
+      "container:portainer",
+      "container:qbittorrent",
+      "container:radarr",
+      "container:sonarr",
+      "container:prowlarr",
+      "container:flaresolverr",
+      "memory-pressure",
+      "backup-evidence"
+    ]
+  },
+  "reporting": {
+    "adapted_unit_verify": {
+      "exit": 0,
+      "stderr_categories": [],
+      "scope": "temporary adapted files / manual collection; no units installed or enabled"
+    },
+    "calendar": {
+      "exit": 0,
+      "stderr_categories": [],
+      "scope": "temporary adapted files / manual collection; no units installed or enabled"
+    },
+    "report_collection": {
+      "exit": 1,
+      "summary": "Private report saved. Health exit code: 1.",
+      "source_base": "59dfd0a",
+      "initial_missing_private_output_directory_refused": true
+    },
+    "existing_installation": {
+      "homelab_user_units": 0,
+      "homelab_config_directory_exists": false,
+      "persistent_report_directory_exists": false,
+      "manual_report_files": [
+        {
+          "name": "collected-at.txt",
+          "mode": "0o600",
+          "bytes": 33
+        },
+        {
+          "name": "health.json",
+          "mode": "0o600",
+          "bytes": 12136
+        },
+        {
+          "name": "health.txt",
+          "mode": "0o600",
+          "bytes": 6532
+        }
+      ]
+    },
+    "deduplication_replay": {
+      "same_captured_live_report_with_only_timestamp_changed": true,
+      "duplicate": true,
+      "scope": "Replay of captured report, no fabricated observations or extra live requests",
+      "history_bundle_count": 2,
+      "distinct_live_samples_retained": true,
+      "history_day_count": 1
+    },
+    "rotation": "keep-all; no automatic prune policy implemented"
+  },
+  "tests": {
+    "environment": "Pi ARM64 Debian13.6 Python3.13.5",
+    "command": "python3 -m unittest discover -s tests -v",
+    "passed": 126,
+    "failed": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "source_base": "59dfd0ae1a12e382e3ff58ce4985d597f9c6af63 plus Pi audit changes",
+    "scope": "Generated and mocked tests; live checks recorded separately"
+  },
+  "unknowns": [
+    "Firewall/router/VLAN/public access",
+    "Effective SSH password/root-login policy",
+    "Full root/other-user/custom backup schedules",
+    "Grafana dashboards/alert delivery",
+    "Complete independent backup and full disaster recovery",
+    "Active qBittorrent preferences/completed torrent paths until authenticated"
+  ],
+  "production_changes_this_audit": [
+    "Reapplied already authorized exact qBittorrent leaf 0644 to 0600 after current identity/access verification; bytes/inode unchanged"
+  ],
+  "container_inventory_observed_utc": "2026-10-01T06:18:56.148018+00:00",
+  "runtime_drift": {
+    "qbit_started_again_at_utc": "2026-10-01T00:57:57.568221361Z",
+    "origin": "UNKNOWN; owner clarification requested",
+    "new_saved_credential_keys_present": true,
+    "prepared_reset_applied": false,
+    "version_probe_isolated": {
+      "observed_utc": "2026-10-01T06:18:55.601128+00:00",
+      "scope": "Isolated --version probe with a private copied historical profile; no production bind/ports/network",
+      "image_id": "sha256:621de1076a811d84ed93175bdcb274fe7276408441aaa287471caedf247eb33a",
+      "live_command_origin_unconfirmed": true,
+      "exit_code": 0,
+      "version_output_matches": true,
+      "copied_config_changed": false,
+      "copied_mode_after": "0o600",
+      "stdout_other_contents_withheld": true,
+      "isolated_removed": true,
+      "private_temporary_removed": true
+    },
+    "version_probe_attribution": "UNKNOWN; isolated same-image copied-profile version probe did not alter config/mode"
+  },
+  "permission_recheck": {
+    "observed_utc": "2026-10-01T06:18:11.993552+00:00",
+    "effective_identity": {
+      "pid": "7424",
+      "euid": 1000,
+      "egid": 1000
+    },
+    "profile_username_key_present": true,
+    "profile_username_value_nonempty": true,
+    "profile_pbkdf2_key_present": true,
+    "profile_pbkdf2_value_nonempty": true,
+    "before_mode": "0o644",
+    "before_inode": 60426490,
+    "read_write_verified_before": true,
+    "origin_of_runtime_restart": "UNKNOWN; owner clarification pending",
+    "version_probe_can_initialize_settings": "Upstream source initializes settings; isolated reproduction did not write the copied profile",
+    "after_mode": "0o600",
+    "content_unchanged": true,
+    "inode_unchanged": true,
+    "read_write_verified_after": true,
+    "authorization": "Earlier exact qBittorrent 0644 to 0600 approval after identity verification",
+    "rollback": "Restore only this leaf to 0644 if explicitly needed; no content reset applied",
+    "version_probe_isolated_config_changed": false
+  },
+  "radarr_latest_recheck": {
+    "observed_utc": "2026-10-01T06:20:02.177621+00:00",
+    "enabled_qbittorrent_clients": 1,
+    "host_equals_service_dns": false,
+    "port": 8080,
+    "ssl": false,
+    "url_base_present": false,
+    "health": [
+      {
+        "source": "IndexerRssCheck",
+        "type": "warning"
+      },
+      {
+        "source": "DownloadClientStatusCheck",
+        "type": "error"
+      },
+      {
+        "source": "DownloadClientCheck",
+        "type": "error"
+      },
+      {
+        "source": "UpdateCheck",
+        "type": "warning"
+      },
+      {
+        "source": "IndexerSearchCheck",
+        "type": "warning"
+      },
+      {
+        "source": "IndexerLongTermStatusCheck",
+        "type": "error"
+      }
+    ],
+    "configured": {
+      "curl_exit": 28,
+      "http_status": "000"
+    },
+    "service_dns": {
+      "curl_exit": 0,
+      "http_status": "200"
+    }
+  },
+  "qbit_saved_config_scope": "Initial diagnosis snapshot; later runtime_drift supersedes credential absence"
+}

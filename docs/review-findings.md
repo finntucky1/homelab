@@ -1,5 +1,15 @@
 # Evidence-based findings — September 30, 2026
 
+The subsequent direct [live audit](live-audit-2026-09-30.md) supersedes the
+coverage gaps in the MSI reconciliation table below. Twelve containers/current
+sources/mounts and real app identities are observed. Prometheus's three scrapes
+and isolated Radarr startup passed. The configured Radarr endpoint times out;
+tested qBittorrent credentials did not establish a session, so reset preparation
+is ready for approval. Current published ports bind all IPv4/IPv6 interfaces,
+but firewall/router/public policy remains UNKNOWN. Sonarr/Prowlarr config and
+native ZIP mode changes need separate approval. No speculative bind correction
+or broad hardening was applied. The table below is the earlier MSI review.
+
 The MSI review reconciles initial September 29 findings with [newer Pi-agent runtime evidence](pi-runtime-follow-up.md). No live Pi action was executed on the MSI. Raw configuration/logs remain private.
 
 | Priority / symptom | Current evidence | Uncertainty | Next verification |

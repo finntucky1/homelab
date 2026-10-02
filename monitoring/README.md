@@ -1,5 +1,14 @@
 # Monitoring
 
+The direct [September 30 audit](../docs/live-audit-2026-09-30.md#monitoring-status)
+verified existing Prometheus/Grafana/node-exporter/cAdvisor rather than deploying
+another stack. Three scrape targets are up; host filesystem and container memory
+metrics are present. Grafana health/database passes. Dashboard/auth/alert delivery
+and sustained availability remain unverified. Manual current readable/JSON health
+and private reporting exit 1 with explicit UNKNOWN coverage. Adapted temporary
+units/calendar pass verification; no timer is installed/enabled. Exact prepared
+installation and rollback: [prepared changes](../docs/prepared-changes.md).
+
 [healthcheck.py](../scripts/healthcheck.py) provides read-only host observations
 and configured application response probes. The code is prepared locally;
 that does not establish Pi deployment, continuous monitoring, uptime or alert
@@ -23,9 +32,9 @@ thresholds, actions and explicit coverage exclusions.
 Power/throttling bit interpretation follows [Raspberry Pi's firmware command
 reference](https://www.raspberrypi.com/documentation/computers/os.html#get_throttled).
 Threshold defaults are proposals to review after observation, not measured Pi
-limits or proof that cooling/power is adequate. Newer [Pi evidence](../docs/pi-runtime-follow-up.md)
-found existing Prometheus, Grafana, node-exporter and cAdvisor containers. Their
-scrape coverage, dashboards and alerts remain unverified. Do not duplicate them.
+limits or proof that cooling/power is adequate. Current [Pi evidence](../docs/live-audit-2026-09-30.md)
+verifies three existing scrape targets and measured coverage. Dashboards and
+alerts remain unverified. Do not duplicate the existing stack.
 
 ## Interpreting and collecting reports
 

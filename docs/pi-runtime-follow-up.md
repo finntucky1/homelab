@@ -1,5 +1,10 @@
 # Pi runtime evidence incorporated on the MSI — September 30, 2026
 
+Historical partial follow-up. The subsequent direct [live audit](live-audit-2026-09-30.md)
+supersedes its current coverage gaps: all twelve containers, current sources,
+three healthy scrapes, configured endpoint timeout and isolated Radarr startup
+are now observed. The earlier evidence below retains its original scope.
+
 Source: the Pi agent's approved runtime follow-up in [existing draft PR #1](https://github.com/finntucky1/homelab/pull/1), read September 30. The PR was last updated at `2026-09-30T07:02:18Z` when read. Individual follow-up observation timestamps were not supplied. These are **LIVE PI OBSERVATION** records supplied by that agent; the MSI did not repeat live commands or change the Pi. Initial restricted-session observations remain historical in their dated records.
 
 | Evidence | Reported result | Scope / remaining uncertainty |

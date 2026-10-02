@@ -1,4 +1,21 @@
-# Historical candidate Compose source
+# Current and historical Compose review evidence
+
+The September 30 direct [live audit](../docs/live-audit-2026-09-30.md#compose-status)
+located both current source files under /mnt/storage/omnieye/compose and compared
+image, mount and restart declarations with eleven labeled running containers.
+[live-apps.review.compose.json](live-apps.review.compose.json) has seven services;
+[live-stack.review.compose.json](live-stack.review.compose.json) has eleven.
+npm's original source remains unknown. Full deployment invocation/override order
+is not retained; do not deploy these selected sanitized copies.
+
+STORAGE_ROOT represents /mnt/storage and APP_CONFIG_ROOT represents
+/srv/omnieye/config. Reviewed identity/timezone values are retained; other
+environment values require private placeholders. Actual nonempty commands,
+networks, ports, mounts and privileged flags are selected from source. Syntax
+passed config --quiet with synthetic environment values. Syntax does not prove
+reproducibility or authorize starting/replacing the stack.
+
+## Historical four-service candidate
 
 [observed.compose.yaml](observed.compose.yaml) is a sanitized **review copy**
 of the privately inspected four-service source on September 29, 2026. It keeps

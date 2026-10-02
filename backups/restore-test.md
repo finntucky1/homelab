@@ -1,5 +1,23 @@
 # Restore test record
 
+## September 30 isolated Radarr application startup
+
+The direct [live audit](../docs/live-audit-2026-09-30.md) extends the earlier
+file/database result below. The newest native Radarr ZIP (September 28) passed
+CRC and SHA-256 comparison; three files restored into new temporary NVMe
+storage, SQLite integrity ok with 42 tables. The exact live Radarr image started
+using only that isolated config, network none, no published ports or production
+binds, UID/GID 1000:1000, read-only root, dropped capabilities and no-new-privileges.
+Restored API authentication and database movie count matched, startup 4.93 seconds.
+The isolated container and temporary restore were removed; source archive and
+live process/state/restart observations were unchanged. No memory-limit support
+exists in the current daemon/kernel; the startup deadline bounded the test.
+
+FILE RESTORE VALIDATED; DATABASE RESTORE VALIDATED; APPLICATION STARTUP VALIDATED.
+SERVICE RECOVERY NOT VALIDATED; FULL DR NOT VALIDATED. The archive is on the same
+physical SSD as production. Startup timing does not establish service RTO.
+Selected machine-readable evidence: [pi-2026-09-30.json](../docs/evidence/pi-2026-09-30.json).
+
 ## September 29 native Radarr archive verification
 
 An existing native Radarr ZIP was restored into a new private temporary

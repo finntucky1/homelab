@@ -1,5 +1,29 @@
 # Verification record
 
+## Direct Pi combined verification — September 30, 2026
+
+After fast-forward integration of MSI 59dfd0a, the separate Pi audit branch
+passed 126 tests, zero failures/skips, exit 0 on actual ARM64 Debian 13.6 /
+Python 3.13.5. This includes the MSI 110 tests and sixteen new destination
+preflight tests. Independent review identified read-only mount, multi-device
+filesystem and malformed metadata gaps; those are fixed with regressions.
+See the [complete current command table](live-audit-2026-09-30.md#test-results)
+and [selected JSON](evidence/pi-2026-09-30.json).
+
+Live readable/JSON health exits 1: 34 PASS, 12 UNKNOWN, zero WARN/FAIL.
+Twelve HTTP probes, explicit host DNS resolution and restart counters passed.
+Unknowns are ten undeclared Docker health checks, memory PSI and unconfigured
+backup evidence. Manual private wrapper exits 1 and preserves severity/modes;
+captured semantic replay deduplicates. Adapted temporary units/calendar and two
+current sanitized Compose review copies pass syntax validation, no activation.
+Twelve actual native ZIP CRC/hash checks pass. Newest Radarr file/DB/isolated
+startup/data read passes, while full service/DR recovery remains unvalidated.
+Destination CLI exits 0 for external Radarr vs private NVMe, 2 as expected when
+NVMe production state is also included. The synthetic backup lab exits 0.
+Grammar compatibility is distinct from execution; no Python 3.8 runtime was used.
+
+Earlier MSI and Pi totals below remain separately attributed history.
+
 ## MSI review and local testing — September 30, 2026
 
 Reviewed all **34** files changed in the incoming PR at `d70f666`; all four
