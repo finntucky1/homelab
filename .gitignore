@@ -1,0 +1,33 @@
+# Secrets and host-specific configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+secrets/
+private/
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+wg*.conf
+
+# Runtime data and generated local reports
+data/
+reports/
+*.db
+*.db-*
+*.sqlite*
+*.log
+*.bak
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Local development
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store

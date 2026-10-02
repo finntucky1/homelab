@@ -1,0 +1,12 @@
+# Proposed template only. Replace both /ABSOLUTE/PATH/TO/homelab values.
+# Review scheduler inventory and approve installation/activation before use.
+[Unit]
+Description=Collect a private homelab health report
+
+[Service]
+Type=oneshot
+WorkingDirectory=/ABSOLUTE/PATH/TO/homelab
+ExecStart=/usr/bin/python3 /ABSOLUTE/PATH/TO/homelab/scripts/report_snapshot.py --output-dir %h/.local/state/homelab/reports -- --config %h/.config/homelab/healthcheck.json
+UMask=0077
+NoNewPrivileges=true
+TimeoutStartSec=5min
